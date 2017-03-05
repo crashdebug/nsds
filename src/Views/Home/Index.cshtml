@@ -1,0 +1,39 @@
+@{
+	ViewData["Title"] = "NSDS";
+}
+@section scripts {
+	<environment names="Development">
+		<script src="~/lib/jquery/dist/jquery.js"></script>
+		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+		<script src="/lib/angular/angular.js"></script>
+		<script src="/lib/underscore/underscore.js"></script>
+		<script src="~/js/site.js" asp-append-version="true"></script>
+	</environment>
+	<environment names="Staging,Production">
+		<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.3.min.js"
+				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+				asp-fallback-test="window.jQuery">
+		</script>
+		<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
+				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+		</script>
+		<script src="/lib/angular/angular.min.js"></script>
+		<script src="/lib/underscore/underscore-min.js"></script>
+		<script src="~/js/site.min.js" asp-append-version="true"></script>
+	</environment>
+}
+
+<div ng-controller="PoolsController">
+	<div class="pool" ng-repeat="pool in pools">
+		<b>{{ pool.name }}</b>
+		<ul class="client-list" ng-controller="ClientsController">
+			<li class="client status-{{ cli.status() }}" ng-repeat="cli in clients">
+				<b>{{ cli.name }}</b>
+				<ul class="module-list">
+					<li class="module" ng-repeat="mod in cli.modules">{{ mod.name }} <span style="float: right">[{{ mod.version }}]</span></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>

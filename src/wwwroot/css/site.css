@@ -1,0 +1,66 @@
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.pool {
+    border: 2px solid #eee;
+    border-radius: 8px;
+    display: inline-block;
+    min-width: 100px;
+    min-height: 100px;
+    margin: 20px;
+    vertical-align: top;
+}
+
+.client-list {
+    padding: 4px;
+}
+
+.client {
+    display: inline-block;
+    list-style: none;
+    min-width: 100px;
+    min-height: 20px;
+    margin: 8px;
+}
+
+.status-ok {
+    border: 2px solid #6c3;
+    border-radius: 4px;
+}
+
+.module-list {
+    padding: 4px;
+}
+
+.module {
+    list-style: none;
+}
+
+/* buttons and links extension to use brackets: [ click me ] */
+.btn-bracketed::before {
+    display:inline-block;
+    content: "[";
+    padding-right: 0.5em;
+}
+.btn-bracketed::after {
+    display:inline-block;
+    content: "]";
+    padding-left: 0.5em;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+  /* Hide captions */
+  .carousel-caption {
+    display: none
+  }
+}
