@@ -1,0 +1,7 @@
+{
+	"projects": [
+		"src/NSDS.Core",
+		"src/NSDS.Web",
+		"test"
+	]
+}
