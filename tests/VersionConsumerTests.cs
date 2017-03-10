@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using NSDS.Core;
+using NSDS.Core.Interfaces;
 
 namespace NSDS.Tests
 {
@@ -9,7 +10,13 @@ namespace NSDS.Tests
         [Fact]
         public void CartVersionTest()
         {
-
+            var factory = new ConnectionFactory();
+            factory.Add("http", new TestConnection());
         }
+    }
+
+    public class TestConnection : IConnection
+    {
+
     }
 }
