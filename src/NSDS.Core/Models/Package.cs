@@ -19,6 +19,6 @@ namespace NSDS.Core.Models
 
 		[NotMapped]
 		[JsonProperty("commands")]
-		public virtual IEnumerable<Command> Commands { get; set; }
+		public virtual ICollection<Command> Commands { get; set; }
 	}
 }

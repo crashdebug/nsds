@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+//using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
@@ -26,6 +26,8 @@ namespace NSDS.Data
 
 		public void Seed()
 		{
+			this.Database.Migrate();
+
 			if (!this.Pools.Any(x => x.Name == "PROD"))
 				this.Pools.Add(new Pool { Name = "PROD" });
 			if (!this.Pools.Any(x => x.Name == "QA"))

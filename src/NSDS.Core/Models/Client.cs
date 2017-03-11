@@ -26,7 +26,7 @@ namespace NSDS.Core.Models
 		public int PoolId { get; set; }
 
 		[JsonProperty("modules")]
-		public virtual IEnumerable<Module> Modules { get; set; }
+		public virtual ICollection<Module> Modules { get; set; }
 
 		[JsonProperty("enabled")]
 		public bool Enabled { get; set; }
