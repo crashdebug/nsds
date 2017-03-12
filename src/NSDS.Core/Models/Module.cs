@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
@@ -25,5 +26,10 @@ namespace NSDS.Core.Models
 
 		[JsonProperty("version")]
 		public string Version { get; set; }
+
+		public Uri GetEndpointUri()
+		{
+			return new Uri(string.Format(this.Endpoint, this.Client.Address));
+		}
 	}
 }

@@ -6,7 +6,7 @@ namespace NSDS.Core.Interfaces
 {
 	public interface IEventService
 	{
-		void Register(string eventName, object handler);
+		void Register(string eventName, Action<object[]> handler);
 		void Invoke(string eventName, params object[] args);
 	}
 
@@ -22,10 +22,10 @@ namespace NSDS.Core.Interfaces
 			}
         }
 
-        public void Register(string eventName, object handler)
+        public void Register(string eventName, Action<object[]> handler)
         {
-            var h = handler as Action<object[]>;
-			if (h == null)
+            //var h = handler as Action<object[]>;
+			if (handler == null)
 			{
 				throw new ArgumentException("Handler should be of type Action<object[]>");
 			}
@@ -33,7 +33,7 @@ namespace NSDS.Core.Interfaces
 			{
 				this.handlers.Add(eventName, new List<Action<object[]>>());
 			}
-			this.handlers[eventName].Add(h);
+			this.handlers[eventName].Add(handler);
         }
     }
 }

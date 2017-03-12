@@ -4,6 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace NSDS.Core.Jobs
 {
+	public enum JobStatus
+	{
+		Unknown = 0,
+		Success = 1,
+		Error = 2,
+		Running = 3,
+	}
+
 	public abstract class JobBase
 	{
         protected readonly ILogger Log;
@@ -22,6 +30,8 @@ namespace NSDS.Core.Jobs
 			}
 		}
 
+		public JobStatus Status { get; private set; }
+
 		protected JobBase(ILogger log = null)
 		{
 			this.Log = log;
@@ -36,8 +46,10 @@ namespace NSDS.Core.Jobs
 			{
 				try
 				{
+					this.Status = JobStatus.Running;
 					this.RunOnce();
 					this.LastRun = now;
+					this.Status = JobStatus.Success;
 					while (this.intervals.Count > 1)
 					{
 						this.intervals.Pop();
@@ -45,6 +57,7 @@ namespace NSDS.Core.Jobs
 				}
 				catch (Exception ex)
 				{
+					this.Status = JobStatus.Error;
 					if (this.Log != null)
 					{
 						this.Log.LogError("An exception occurred while running '{0}':\n{1}", this.GetType().Name, ex.ToString());

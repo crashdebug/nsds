@@ -1,21 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
+using System.IO;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NSDS.Core.Interfaces;
 
 namespace NSDS.Core.Jobs
 {
-    public class VersionPoller : JobBase
+	public class VersionPoller : JobBase
 	{
-        private readonly IClientsService clientService;
-        private readonly IEventService eventService;
+		private readonly IClientsService clientService;
+		private readonly IEventService eventService;
+		private readonly ConnectionFactory connectionFactory;
 
-        public VersionPoller(IClientsService clientService, IEventService eventService, ILogger log) : base(log)
+		public VersionPoller(IClientsService clientService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
 		{
 			this.clientService = clientService;
 			this.eventService = eventService;
+			this.connectionFactory = connectionFactory;
 		}
 
 		protected override async void RunOnce()
@@ -27,21 +28,21 @@ namespace NSDS.Core.Jobs
 					continue;
 				}
 
-				using (HttpClient http = new HttpClient())
+				foreach (var module in client.Modules)
 				{
-					http.BaseAddress = new Uri(client.Address);
-					foreach (var module in client.Modules)
+					try
 					{
-						try
+						var uri = module.GetEndpointUri();
+						var conn = this.connectionFactory.CreateConnection(uri);
+						using (var stream = new StreamReader(await conn.GetStream()))
 						{
-							var response = await http.GetStringAsync(module.Endpoint);
-							var version = JsonConvert.DeserializeObject<IDictionary<string, object>>(response);
+							var version = JsonConvert.DeserializeObject(stream.ReadToEnd());
 							this.eventService.Invoke("VersionReceived", client, module, version);
 						}
-						catch (Exception ex)
-						{
-							this.Log.LogError("Could not get version for module '{0}', client '{1}':\n{2}", module.Name, client.Name, ex.ToString());
-						}
+					}
+					catch (Exception ex)
+					{
+						this.Log.LogError("Could not get version for module '{0}', client '{1}':\n{2}", module.Name, client.Name, ex.ToString());
 					}
 				}
 			}

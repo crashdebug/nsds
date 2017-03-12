@@ -10,6 +10,7 @@ using NSDS.Core;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Jobs;
 using NSDS.Core.Services;
+using System.Reflection;
 
 namespace NSDS.Web
 {
@@ -50,7 +51,9 @@ namespace NSDS.Web
 
 			services.AddSingleton(typeof(JobRunner));
 
-			services.RegisterTypes(typeof(JobBase));
+			services.AddSingleton(new ConnectionFactory().Add("http", uri => new HttpConnection(uri)));
+
+			services.RegisterTypes(typeof(JobBase), Assembly.Load(new AssemblyName("NSDS.Core")));
 
 			var loggerFactory = new LoggerFactory();
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));

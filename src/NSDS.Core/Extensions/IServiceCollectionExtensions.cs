@@ -18,7 +18,7 @@ namespace NSDS.Core
 				{
 					continue;
 				}
-				else if (type.GetTypeInfo().IsSubclassOf(t))
+				else if (type.GetTypeInfo().IsAssignableFrom(t))
 				{
 					coll.AddTransient(type, t);
 				}
