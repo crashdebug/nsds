@@ -9,12 +9,14 @@ namespace NSDS.Core.Jobs
 	public class VersionPoller : JobBase
 	{
 		private readonly IClientsService clientService;
+		private readonly IModuleService moduleService;
 		private readonly IEventService eventService;
 		private readonly ConnectionFactory connectionFactory;
 
-		public VersionPoller(IClientsService clientService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
+		public VersionPoller(IClientsService clientService, IModuleService moduleService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
 		{
 			this.clientService = clientService;
+			this.moduleService = moduleService;
 			this.eventService = eventService;
 			this.connectionFactory = connectionFactory;
 		}
@@ -28,11 +30,11 @@ namespace NSDS.Core.Jobs
 					continue;
 				}
 
-				foreach (var module in client.Modules)
+				foreach (var module in this.moduleService.GetClientModules(client))
 				{
 					try
 					{
-						var uri = module.GetEndpointUri();
+						var uri = client.GetEndpointUri(module.Endpoint);
 						var conn = this.connectionFactory.CreateConnection(uri);
 						using (var stream = new StreamReader(await conn.GetStream()))
 						{

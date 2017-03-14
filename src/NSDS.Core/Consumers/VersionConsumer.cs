@@ -41,10 +41,11 @@ namespace NSDS.Core.Consumers
 					case "commit_date":
 						if (kvp.TryGetValue("value", out val))
 						{
-							if (module.Version != val.ToString())
+							BaseVersion version = new DateVersion(val.ToString());
+							if (module.Version.CompareTo(version) != 0)
 							{
 								var oldVersion = module.Version;
-								module.Version = val.ToString();
+								module.Version = version;
 								this.eventService.Invoke("VersionChanged", client, module, oldVersion, module.Version);
 							}
 						}

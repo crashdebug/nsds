@@ -5,26 +5,43 @@ using NSDS.Core.Models;
 
 namespace NSDS.Tests
 {
-	class InMemoryClientService : IClientsService
+	class PoolModel : Pool
 	{
-		private List<Client> clients = new List<Client>();
+		public int Id { get; set; }
 
-		public InMemoryClientService(params Client[] clients)
+		public List<Client> Clients = new List<Client>();
+	}
+
+	class ClientModel : Client
+	{
+		public ICollection<Module> Modules { get; internal set; }
+	}
+
+	class ModuleModel : Module
+	{
+	}
+
+	class InMemoryClientService : IModuleService, IClientsService, IPoolService
+	{
+		private List<ClientModel> clients = new List<ClientModel>();
+		private List<PoolModel> pools = new List<PoolModel>();
+
+		public InMemoryClientService(params ClientModel[] clients)
 		{
-			// KLUDGE: Set Module.Client to Client.Module manually.
-			foreach (var cli in clients)
-			{
-				foreach (var mod in cli.Modules)
-				{
-					mod.Client = cli;
-				}
-			}
 			this.clients.AddRange(clients);
 		}
 
-		public void AddClient(Client client)
+		public Client AddClient(Client client)
 		{
-			this.clients.Add(client);
+			var model = new ClientModel
+			{
+				Name = client.Name,
+				Address = client.Address,
+				Enabled = client.Enabled,
+				Modules = new List<Module>()
+			};
+			this.clients.Add(model);
+			return model;
 		}
 
 		public IEnumerable<Client> GetAllClients()
@@ -34,7 +51,39 @@ namespace NSDS.Tests
 
 		public IEnumerable<Client> GetClientsInPool(int poolId)
 		{
-			return this.clients.Where(x => x.PoolId == poolId);
+			return this.pools.First(x => x.Id == poolId).Clients;
+		}
+
+		public IEnumerable<Pool> GetPools()
+		{
+			return this.pools.AsEnumerable<Pool>();
+		}
+
+		public Pool AddPool(Pool pool)
+		{
+			var dbPool = new PoolModel
+			{
+				Id = this.pools.Count + 1,
+				Name = pool.Name
+			};
+			this.pools.Add(dbPool);
+			return dbPool;
+		}
+
+		public IEnumerable<Module> GetClientModules(Client client)
+		{
+			var model = client as ClientModel;
+			if (model == null)
+			{
+				model = this.clients.Single(x => x.Name == client.Name);
+			}
+			return model.Modules.AsEnumerable();
+		}
+
+		public void Dispose()
+		{
+			this.clients.Clear();
+			this.pools.Clear();
 		}
 	}
 }

@@ -8,14 +8,11 @@ namespace NSDS.Core.Models
 {
 	public class Package
 	{
-		[JsonProperty("id")]
-		public int Id { get; set; }
-
 		[JsonProperty("created")]
 		public DateTime Created { get; set; }
 
 		[JsonProperty("version")]
-		public string Version { get; set; }
+		public BaseVersion Version { get; set; }
 
 		[NotMapped]
 		[JsonProperty("commands")]

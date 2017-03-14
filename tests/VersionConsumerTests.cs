@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using NSDS.Core;
 using NSDS.Core.Consumers;
 using NSDS.Core.Interfaces;
@@ -43,13 +39,13 @@ namespace NSDS.Tests
 			factory.Add("http", uri => conn);
 
 			var clientService = new InMemoryClientService(
-				new Client
+				new ClientModel
 				{
 					Name = "test",
 					Address = "127.0.0.1",
 					Enabled = true,
 					Modules = new List<Module>(new[] {
-						new Module
+						new ModuleModel
 						{
 							Name = "ui",
 							Endpoint = "http://{0}:8000/cart/git"
@@ -61,19 +57,9 @@ namespace NSDS.Tests
 			var eventService = new EventService();
 			eventService.Register("VersionReceived", new VersionConsumer(eventService).CheckVersion);
 
-			var poller = new VersionPoller(clientService, factory, eventService);
+			var poller = new VersionPoller(clientService, clientService, factory, eventService);
 			poller.Run();
 			Assert.IsTrue(poller.Status == JobStatus.Success);
-		}
-	}
-
-	internal class DateVersion
-	{
-		private DateTime dateTime;
-
-		public DateVersion(string version)
-		{
-			this.dateTime = DateTime.ParseExact(version, "yyyy-MM-dd HH:mm:ss", new DateTimeFormatInfo());
 		}
 	}
 

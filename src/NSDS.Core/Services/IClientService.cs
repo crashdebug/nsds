@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
 using NSDS.Core.Models;
 
 namespace NSDS.Core.Interfaces
 {
-	public interface IClientsService
+	public interface IClientsService : IDisposable
 	{
 		IEnumerable<Client> GetClientsInPool(int poolId);
-        void AddClient(Client client);
+        Client AddClient(Client client);
         IEnumerable<Client> GetAllClients();
     }
 }

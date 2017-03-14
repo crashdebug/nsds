@@ -46,6 +46,7 @@ namespace NSDS.Web
 			// Add application services.
 			services.AddTransient<IPoolService, ApplicationDbContext>();
 			services.AddTransient<IClientsService, ApplicationDbContext>();
+			services.AddTransient<IModuleService, ApplicationDbContext>();
 
 			services.AddSingleton<IEventService>(new EventService());
 

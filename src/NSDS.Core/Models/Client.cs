@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
 namespace NSDS.Core.Models
 {
-	public class Client
+	public abstract class Client
 	{
-		[JsonProperty("id")]
-		public int Id { get; set; }
-
 		[JsonProperty("name")]
 		[Required]
 		public string Name { get; set; }
@@ -19,16 +14,12 @@ namespace NSDS.Core.Models
 		[Required]
 		public string Address { get; set; }
 
-		[JsonIgnore]
-		[ForeignKey("PoolId")]
-		public virtual Pool Pool { get; set; }
-		[JsonProperty("poolId")]
-		public int PoolId { get; set; }
-
-		[JsonProperty("modules")]
-		public virtual ICollection<Module> Modules { get; set; }
-
 		[JsonProperty("enabled")]
 		public bool Enabled { get; set; }
-    }
+
+		public Uri GetEndpointUri(string endpoint)
+		{
+			return new Uri(string.Format(endpoint, this.Address));
+		}
+	}
 }

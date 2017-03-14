@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using NSDS.Core.Models;
 
 namespace NSDS.Core.Interfaces
 {
-	public interface IPoolService
+	public interface IPoolService : IDisposable
 	{
 		IEnumerable<Pool> GetPools();
-		void AddPool(Pool pool);
+		Pool AddPool(Pool pool);
 	}
 }
