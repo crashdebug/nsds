@@ -8,7 +8,7 @@ using NSDS.Data.Models;
 
 namespace NSDS.Data
 {
-	public class ApplicationDbContext : DbContext, IPoolService, IClientsService, IModuleService
+	public class ApplicationDbContext : DbContext, IModuleService
 	{
 		public ApplicationDbContext(DbContextOptions context) :
 			base(context)
@@ -123,86 +123,5 @@ namespace NSDS.Data
 		public DbSet<ClientModuleDataModel> ClientModules { get; set; }
 		public DbSet<PackageDataModel> Packages { get; set; }
 		public DbSet<BaseVersion> Versions { get; set; }
-
-		public IEnumerable<Pool> GetPools()
-        {
-            return this.Pools.ToArray();
-        }
-
-		public Pool AddPool(Pool pool)
-		{
-			var dbPool = new PoolDataModel
-			{
-				Name = pool.Name
-			};
-			this.Pools.Add(dbPool);
-			this.SaveChanges();
-			return dbPool;
-		}
-
-		public void RemovePool(int poolId)
-		{
-			var pool = this.Pools.First(p => p.Id == poolId);
-			this.Pools.Remove(pool);
-			this.SaveChanges();
-		}
-
-		public IEnumerable<Client> GetClientsInPool(int poolId)
-		{
-			return this.Clients.Where(c => c.Pool.Id == poolId)
-				.Include(c => c.Modules).ThenInclude(m => m.Module)
-				.ToArray();
-		}
-
-		public void AddClientToPool(Client cli, int poolId)
-		{
-			var pool = this.Pools.First(p => p.Id == poolId);
-			pool.Clients.Add(this.Clients.First(x => x.Name == cli.Name && x.Address == cli.Address));
-			this.SaveChanges();
-		}
-
-		public IEnumerable<Client> GetAllClients()
-		{
-			return this.Clients;
-		}
-
-		public Client AddClient(Client cli)
-		{
-			var dbClient = new ClientDataModel
-			{
-				Name = cli.Name,
-				Address = cli.Address,
-				Enabled = cli.Enabled,
-			};
-			this.Clients.Add(dbClient);
-			this.SaveChanges();
-			return dbClient;
-		}
-
-		public void RemoveClient(Client client)
-		{
-			var cli = this.Clients.FirstOrDefault(x => x.Name == client.Name && x.Address == client.Address);
-			if (cli == null)
-			{
-				return;
-			}
-			if (cli.Pool != null)
-			{
-				var pool = this.Pools.First(p => p.Id == cli.Pool.Id);
-				pool.Clients.Remove(cli);
-			}
-			this.Clients.Remove(cli);
-			this.SaveChanges();
-		}
-
-		public IEnumerable<Module> GetClientModules(Client client)
-		{
-			var dbClient = client as ClientDataModel;
-			if (dbClient == null)
-			{
-				dbClient = this.Clients.Single(x => x.Name == client.Name && x.Address == client.Address);
-			}
-			return dbClient.Modules.Select(x => x.Module).AsEnumerable<Module>().ToArray();
-		}
 	}
 }

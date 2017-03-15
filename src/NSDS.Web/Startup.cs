@@ -11,6 +11,7 @@ using NSDS.Core.Interfaces;
 using NSDS.Core.Jobs;
 using NSDS.Core.Services;
 using System.Reflection;
+using NSDS.Data.Services;
 
 namespace NSDS.Web
 {
@@ -44,9 +45,9 @@ namespace NSDS.Web
 			services.AddMvc();
 
 			// Add application services.
-			services.AddTransient<IPoolService, ApplicationDbContext>();
-			services.AddTransient<IClientsService, ApplicationDbContext>();
-			services.AddTransient<IModuleService, ApplicationDbContext>();
+			services.AddTransient<IPoolService, PoolService>();
+			services.AddTransient<IClientsService, ClientService>();
+			services.AddTransient<IModuleService, ModuleService>();
 
 			services.AddSingleton<IEventService>(new EventService());
 
