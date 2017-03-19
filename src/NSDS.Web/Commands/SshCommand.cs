@@ -1,9 +1,11 @@
+using System;
+using NSDS.Core;
+using NSDS.Core.Models;
 using Renci.SshNet;
-using NSDS.Core.Commands;
 
 namespace NSDS.Web.Commands
 {
-	public class SshExec : Command
+	public class SshCommand : Command
 	{
 		private SshClient cli = null;
 
@@ -26,6 +28,11 @@ namespace NSDS.Web.Commands
 				this.cli.Disconnect();
 				this.cli = null;
 			}
+		}
+
+		public override CommandResult Execute(Client client, Module module)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

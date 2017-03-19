@@ -17,6 +17,9 @@ namespace NSDS.Core.Models
 		[JsonProperty("enabled")]
 		public bool Enabled { get; set; }
 
+		[JsonProperty("created")]
+		public DateTime Created { get; set; }
+
 		public Uri GetEndpointUri(string endpoint)
 		{
 			return new Uri(string.Format(endpoint, this.Address));

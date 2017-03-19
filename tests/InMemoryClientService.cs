@@ -5,23 +5,7 @@ using NSDS.Core.Models;
 
 namespace NSDS.Tests
 {
-	class PoolModel : Pool
-	{
-		public int Id { get; set; }
-
-		public List<Client> Clients = new List<Client>();
-	}
-
-	class ClientModel : Client
-	{
-		public ICollection<Module> Modules { get; internal set; }
-	}
-
-	class ModuleModel : Module
-	{
-	}
-
-	class InMemoryClientService : IModuleService, IClientsService, IPoolService
+	class InMemoryClientService : IModuleStorage, IClientsService, IPoolStorage
 	{
 		private List<ClientModel> clients = new List<ClientModel>();
 		private List<PoolModel> pools = new List<PoolModel>();

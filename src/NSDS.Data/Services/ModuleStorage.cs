@@ -6,11 +6,11 @@ using NSDS.Data.Models;
 
 namespace NSDS.Data.Services
 {
-	public class ModuleService : IModuleService
+	public class ModuleStorage : IModuleStorage
     {
 		private readonly ApplicationDbContext context;
 
-		public ModuleService(ApplicationDbContext context)
+		public ModuleStorage(ApplicationDbContext context)
 		{
 			this.context = context;
 		}

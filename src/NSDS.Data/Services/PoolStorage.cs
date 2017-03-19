@@ -8,11 +8,11 @@ using NSDS.Data.Models;
 
 namespace NSDS.Data.Services
 {
-	public class PoolService : IPoolService
+	public class PoolStorage : IPoolStorage
 	{
 		private readonly ApplicationDbContext context;
 
-		public PoolService(ApplicationDbContext context)
+		public PoolStorage(ApplicationDbContext context)
 		{
 			this.context = context;
 		}

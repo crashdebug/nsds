@@ -7,9 +7,9 @@ namespace NSDS.Web.Api.Controllers
 	[Route("api/pools")]
 	public class PoolsController : Controller
 	{
-        private readonly IPoolService poolService;
+        private readonly IPoolStorage poolService;
 
-        public PoolsController(IPoolService poolService)
+        public PoolsController(IPoolStorage poolService)
 		{
 			this.poolService = poolService;
 		}

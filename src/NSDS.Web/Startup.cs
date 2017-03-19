@@ -12,6 +12,7 @@ using NSDS.Core.Jobs;
 using NSDS.Core.Services;
 using System.Reflection;
 using NSDS.Data.Services;
+using NSDS.Web.Commands;
 
 namespace NSDS.Web
 {
@@ -40,14 +41,18 @@ namespace NSDS.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 			// Add framework services.
-			services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+			services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
 
 			services.AddMvc();
 
 			// Add application services.
-			services.AddTransient<IPoolService, PoolService>();
-			services.AddTransient<IClientsService, ClientService>();
-			services.AddTransient<IModuleService, ModuleService>();
+			services.AddTransient<IPoolStorage, PoolStorage>();
+			services.AddTransient<IClientsService, ClientStorage>();
+			services.AddTransient<IModuleStorage, ModuleStorage>();
+			services.AddTransient<IPackageStorage, PackageStorage>();
+			services.AddTransient<IDeploymentStorage, DeploymentStorage>();
+
+			services.AddTransient<IDeploymentService, DeploymentService>();
 
 			services.AddSingleton<IEventService>(new EventService());
 
@@ -57,12 +62,14 @@ namespace NSDS.Web
 
 			services.RegisterTypes(typeof(JobBase), Assembly.Load(new AssemblyName("NSDS.Core")));
 
+			ApplicationDbContext.CommandTypes.Add(typeof(SshCommand));
+
 			var loggerFactory = new LoggerFactory();
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
 			services.AddSingleton<ILoggerFactory>(loggerFactory);
-			services.AddSingleton<ILogger>(loggerFactory.CreateLogger(string.Empty));
+			services.AddSingleton(loggerFactory.CreateLogger(string.Empty));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

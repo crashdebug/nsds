@@ -10,6 +10,28 @@ body {
     padding-right: 15px;
 }
 
+.version {
+	float: right;
+}
+
+.version::before {
+	content: '['
+}
+
+.version::after {
+	content: ']'
+}
+
+.package {
+	border: 2px solid #eee;
+	border-radius: 8px;
+	display: inline-block;
+	min-width: 100px;
+	min-height: 100px;
+	margin: 20px;
+	vertical-align: top;
+}
+
 .pool {
     border: 2px solid #eee;
     border-radius: 8px;

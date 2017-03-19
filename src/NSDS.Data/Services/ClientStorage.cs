@@ -7,11 +7,11 @@ using NSDS.Data.Models;
 
 namespace NSDS.Data.Services
 {
-	public class ClientService : IClientsService
+	public class ClientStorage : IClientsService
 	{
 		private readonly ApplicationDbContext context;
 
-		public ClientService(ApplicationDbContext context)
+		public ClientStorage(ApplicationDbContext context)
 		{
 			this.context = context;
 		}
@@ -45,11 +45,6 @@ namespace NSDS.Data.Services
 			this.context.SaveChanges();
 		}
 
-		public void Dispose()
-		{
-			this.context.Dispose();
-		}
-
 		public IEnumerable<Client> GetAllClients()
 		{
 			return this.context.Clients;
@@ -68,5 +63,40 @@ namespace NSDS.Data.Services
 				.Include(c => c.Modules).ThenInclude(m => m.Module)
 				.ToArray();
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					this.context.Dispose();
+				}
+
+				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+				// TODO: set large fields to null.
+
+				disposedValue = true;
+			}
+		}
+
+		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+		// ~ClientStorage() {
+		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+		//   Dispose(false);
+		// }
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			this.Dispose(true);
+			// TODO: uncomment the following line if the finalizer is overridden above.
+			// GC.SuppressFinalize(this);
+		}
+		#endregion
 	}
 }

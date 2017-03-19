@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using NSDS.Core.Models;
 
 namespace NSDS.Core.Interfaces
 {
-	public interface IModuleService : IDisposable
+	public interface IPackageStorage : IDisposable
 	{
-		IEnumerable<Module> GetClientModules(Client client);
+		IEnumerable<Package> GetPackages();
 	}
 }

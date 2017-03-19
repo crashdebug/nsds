@@ -20,6 +20,8 @@ namespace NSDS.Data.Migrations
                     b.Property<string>("Version")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<DateTime>("Created");
+
                     b.Property<string>("Discriminator")
                         .IsRequired();
 
@@ -30,6 +32,21 @@ namespace NSDS.Data.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseVersion");
                 });
 
+            modelBuilder.Entity("NSDS.Core.Command", b =>
+                {
+                    b.Property<string>("Name")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Command");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Command");
+                });
+
             modelBuilder.Entity("NSDS.Data.Models.ClientDataModel", b =>
                 {
                     b.Property<int>("Id")
@@ -37,6 +54,8 @@ namespace NSDS.Data.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired();
+
+                    b.Property<DateTime>("Created");
 
                     b.Property<bool>("Enabled");
 
@@ -69,10 +88,41 @@ namespace NSDS.Data.Migrations
                     b.ToTable("ClientModules");
                 });
 
+            modelBuilder.Entity("NSDS.Data.Models.DeploymentCommandsDataModel", b =>
+                {
+                    b.Property<string>("CommandName");
+
+                    b.Property<int>("DeploymentId");
+
+                    b.Property<int>("Order");
+
+                    b.HasKey("CommandName", "DeploymentId");
+
+                    b.HasIndex("DeploymentId");
+
+                    b.ToTable("DeploymentCommands");
+                });
+
+            modelBuilder.Entity("NSDS.Data.Models.DeploymentDataModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Deployments");
+                });
+
             modelBuilder.Entity("NSDS.Data.Models.ModuleDataModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<int>("DeploymentId");
 
                     b.Property<string>("Endpoint")
                         .IsRequired();
@@ -81,6 +131,8 @@ namespace NSDS.Data.Migrations
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeploymentId");
 
                     b.ToTable("Modules");
                 });
@@ -92,9 +144,19 @@ namespace NSDS.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<int?>("DeploymentId");
+
+                    b.Property<int>("ModuleId");
+
+                    b.Property<string>("ModuleName");
+
                     b.Property<string>("VersionId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeploymentId");
+
+                    b.HasIndex("ModuleId");
 
                     b.HasIndex("VersionId");
 
@@ -124,6 +186,16 @@ namespace NSDS.Data.Migrations
                     b.HasDiscriminator().HasValue("DateVersion");
                 });
 
+            modelBuilder.Entity("NSDS.Web.Commands.SshCommand", b =>
+                {
+                    b.HasBaseType("NSDS.Core.Command");
+
+
+                    b.ToTable("SshCommand");
+
+                    b.HasDiscriminator().HasValue("SshCommand");
+                });
+
             modelBuilder.Entity("NSDS.Data.Models.ClientDataModel", b =>
                 {
                     b.HasOne("NSDS.Data.Models.PoolDataModel", "Pool")
@@ -149,8 +221,38 @@ namespace NSDS.Data.Migrations
                         .HasForeignKey("VersionId");
                 });
 
+            modelBuilder.Entity("NSDS.Data.Models.DeploymentCommandsDataModel", b =>
+                {
+                    b.HasOne("NSDS.Core.Command", "Command")
+                        .WithMany()
+                        .HasForeignKey("CommandName")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("NSDS.Data.Models.DeploymentDataModel", "Deployment")
+                        .WithMany("DeploymentCommands")
+                        .HasForeignKey("DeploymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("NSDS.Data.Models.ModuleDataModel", b =>
+                {
+                    b.HasOne("NSDS.Data.Models.DeploymentDataModel", "Deployment")
+                        .WithMany()
+                        .HasForeignKey("DeploymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("NSDS.Data.Models.PackageDataModel", b =>
                 {
+                    b.HasOne("NSDS.Data.Models.DeploymentDataModel", "Deployment")
+                        .WithMany()
+                        .HasForeignKey("DeploymentId");
+
+                    b.HasOne("NSDS.Data.Models.ModuleDataModel", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("NSDS.Core.BaseVersion", "Version")
                         .WithMany()
                         .HasForeignKey("VersionId");

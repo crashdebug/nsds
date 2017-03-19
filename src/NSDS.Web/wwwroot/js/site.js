@@ -17,3 +17,9 @@ app.controller('ClientsController', function ClientsController($scope, $http) {
 		});
 	});
 });
+
+app.controller('PackagesController', function PackagesController($scope, $http) {
+	$http.get('api/packages').then(function (response) {
+		$scope.packages = response.data;
+	});
+});

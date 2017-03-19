@@ -9,11 +9,11 @@ namespace NSDS.Core.Jobs
 	public class VersionPoller : JobBase
 	{
 		private readonly IClientsService clientService;
-		private readonly IModuleService moduleService;
+		private readonly IModuleStorage moduleService;
 		private readonly IEventService eventService;
 		private readonly ConnectionFactory connectionFactory;
 
-		public VersionPoller(IClientsService clientService, IModuleService moduleService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
+		public VersionPoller(IClientsService clientService, IModuleStorage moduleService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
 		{
 			this.clientService = clientService;
 			this.moduleService = moduleService;

@@ -11,5 +11,11 @@ namespace NSDS.Data.Models
 
 		[JsonIgnore]
 		public virtual ICollection<ClientModuleDataModel> Clients { get; set; }
+
+		[JsonProperty("deploymentId")]
+		public int DeploymentId { get; set; }
+
+		[JsonIgnore]
+		public DeploymentDataModel Deployment { get; set; }
 	}
 }

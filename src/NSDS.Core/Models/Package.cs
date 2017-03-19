@@ -1,21 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
-using NSDS.Core.Commands;
 
 namespace NSDS.Core.Models
 {
-	public class Package
+	public abstract class Package
 	{
+		[JsonProperty("module")]
+		public virtual string ModuleName { get; set; }
+
 		[JsonProperty("created")]
 		public DateTime Created { get; set; }
 
 		[JsonProperty("version")]
 		public BaseVersion Version { get; set; }
 
-		[NotMapped]
-		[JsonProperty("commands")]
-		public virtual ICollection<Command> Commands { get; set; }
+		//[JsonIgnore]
+		//public Deployment Deployment { get; set; }
 	}
 }

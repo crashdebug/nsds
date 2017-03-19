@@ -4,7 +4,7 @@ using NSDS.Core.Models;
 
 namespace NSDS.Core.Interfaces
 {
-	public interface IPoolService : IDisposable
+	public interface IPoolStorage : IDisposable
 	{
 		IEnumerable<Pool> GetPools();
 		Pool AddPool(Pool pool);
