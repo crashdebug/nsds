@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -19,6 +20,9 @@ namespace NSDS.Core.Models
 
 		[JsonProperty("created")]
 		public DateTime Created { get; set; }
+
+		[JsonProperty("modules")]
+		public abstract IEnumerable<Module> Modules { get; set; }
 
 		public Uri GetEndpointUri(string endpoint)
 		{

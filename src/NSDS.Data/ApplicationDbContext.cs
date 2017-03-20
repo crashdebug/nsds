@@ -87,6 +87,18 @@ namespace NSDS.Data
 			}
 			this.SaveChanges();
 
+			var uiDeployment = this.Deployments.FirstOrDefault(x => x.Name == "deploy_ui");
+			if (uiDeployment == null)
+			{
+				uiDeployment = new DeploymentDataModel
+				{
+					Name = "deploy_ui",
+					Created = DateTime.UtcNow,
+				};
+				this.Deployments.Add(uiDeployment);
+				this.SaveChanges();
+			}
+
 			var uiModule = this.Modules.FirstOrDefault(x => x.Name == "UI");
 			if (uiModule == null)
 			{
@@ -94,6 +106,7 @@ namespace NSDS.Data
 				{
 					Name = "UI",
 					Endpoint = "/ui/version",
+					Deployment = uiDeployment,
 				};
 				this.Modules.Add(uiModule);
 				this.SaveChanges();

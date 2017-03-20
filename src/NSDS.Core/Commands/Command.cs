@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.Logging;
 using NSDS.Core.Models;
 
 namespace NSDS.Core
@@ -7,7 +8,7 @@ namespace NSDS.Core
 	{
 		public string Name { get; set; }
 
-		public abstract CommandResult Execute(Client client, Module module);
+		public abstract CommandResult Execute(Client client, Module module, ILogger logger = null);
 	}
 
 	public class CommandResult

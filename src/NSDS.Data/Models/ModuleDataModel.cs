@@ -15,7 +15,7 @@ namespace NSDS.Data.Models
 		[JsonProperty("deploymentId")]
 		public int DeploymentId { get; set; }
 
-		[JsonIgnore]
+		[JsonProperty("deployment")]
 		public DeploymentDataModel Deployment { get; set; }
 	}
 }

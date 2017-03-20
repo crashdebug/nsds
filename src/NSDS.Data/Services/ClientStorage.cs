@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NSDS.Core.Interfaces;
@@ -7,7 +8,7 @@ using NSDS.Data.Models;
 
 namespace NSDS.Data.Services
 {
-	public class ClientStorage : IClientsService
+	public class ClientStorage : IClientsStorage
 	{
 		private readonly ApplicationDbContext context;
 
@@ -45,6 +46,11 @@ namespace NSDS.Data.Services
 			this.context.SaveChanges();
 		}
 
+		public Client GetClient(int id)
+		{
+			return this.context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id);
+		}
+
 		public IEnumerable<Client> GetAllClients()
 		{
 			return this.context.Clients;
@@ -60,7 +66,7 @@ namespace NSDS.Data.Services
 		public IEnumerable<Client> GetClientsInPool(int poolId)
 		{
 			return this.context.Clients.Where(c => c.Pool.Id == poolId)
-				.Include(c => c.Modules).ThenInclude(m => m.Module)
+				.Include(c => c.ClientModules).ThenInclude(m => m.Module)
 				.ToArray();
 		}
 
@@ -97,6 +103,7 @@ namespace NSDS.Data.Services
 			// TODO: uncomment the following line if the finalizer is overridden above.
 			// GC.SuppressFinalize(this);
 		}
+
 		#endregion
 	}
 }

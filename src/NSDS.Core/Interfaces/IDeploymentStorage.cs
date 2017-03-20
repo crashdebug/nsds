@@ -7,5 +7,6 @@ namespace NSDS.Core.Interfaces
 	public interface IDeploymentStorage : IDisposable
 	{
 		IEnumerable<Deployment> GetDeployments();
+		Deployment GetDeployment(string name);
 	}
 }

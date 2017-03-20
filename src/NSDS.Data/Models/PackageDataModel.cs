@@ -12,14 +12,14 @@ namespace NSDS.Data.Models
 		[JsonProperty("version")]
 		public string VersionId { get; set; }
 
-		[JsonIgnore]
+		[JsonProperty("module")]
 		public ModuleDataModel Module { get; set; }
 
 		[JsonProperty("moduleId")]
 		public int ModuleId { get; set; }
 
-		[JsonProperty("module")]
-		public override string ModuleName { get => this.Module.Name; set => throw new NotSupportedException(); }
+		//[JsonProperty("module")]
+		//public override string ModuleName { get => this.Module.Name; set => throw new NotSupportedException(); }
 
 		[JsonProperty("deploymentId")]
 		public int? DeploymentId { get; set; }

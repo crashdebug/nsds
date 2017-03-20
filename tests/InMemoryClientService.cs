@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
 namespace NSDS.Tests
 {
-	class InMemoryClientService : IModuleStorage, IClientsService, IPoolStorage
+	class InMemoryClientService : IModuleStorage, IClientsStorage, IPoolStorage
 	{
 		private List<ClientModel> clients = new List<ClientModel>();
 		private List<PoolModel> pools = new List<PoolModel>();
+		private List<ModuleModel> modules = new List<ModuleModel>();
 
 		public InMemoryClientService(params ClientModel[] clients)
 		{
@@ -68,6 +70,16 @@ namespace NSDS.Tests
 		{
 			this.clients.Clear();
 			this.pools.Clear();
+		}
+
+		public Module GetModule(int moduleId)
+		{
+			return this.modules.Single(x => x.Id == moduleId);
+		}
+
+		public Client GetClient(int id)
+		{
+			return this.clients.Single(x => x.Id == id);
 		}
 	}
 }

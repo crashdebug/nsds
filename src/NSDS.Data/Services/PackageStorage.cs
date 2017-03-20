@@ -23,7 +23,10 @@ namespace NSDS.Data.Services
 
 		public IEnumerable<Package> GetPackages()
 		{
-			return this.context.Packages.Include(x => x.Module).Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands).AsEnumerable();
+			return this.context.Packages
+				.Include(x => x.Module).ThenInclude(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.AsEnumerable();
 		}
 	}
 }

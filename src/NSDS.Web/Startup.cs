@@ -47,7 +47,7 @@ namespace NSDS.Web
 
 			// Add application services.
 			services.AddTransient<IPoolStorage, PoolStorage>();
-			services.AddTransient<IClientsService, ClientStorage>();
+			services.AddTransient<IClientsStorage, ClientStorage>();
 			services.AddTransient<IModuleStorage, ModuleStorage>();
 			services.AddTransient<IPackageStorage, PackageStorage>();
 			services.AddTransient<IDeploymentStorage, DeploymentStorage>();

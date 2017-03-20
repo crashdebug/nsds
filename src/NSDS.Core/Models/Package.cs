@@ -5,8 +5,8 @@ namespace NSDS.Core.Models
 {
 	public abstract class Package
 	{
-		[JsonProperty("module")]
-		public virtual string ModuleName { get; set; }
+		//[JsonProperty("module")]
+		//public virtual string ModuleName { get; set; }
 
 		[JsonProperty("created")]
 		public DateTime Created { get; set; }

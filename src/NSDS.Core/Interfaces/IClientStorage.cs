@@ -4,10 +4,11 @@ using NSDS.Core.Models;
 
 namespace NSDS.Core.Interfaces
 {
-	public interface IClientsService : IDisposable
+	public interface IClientsStorage : IDisposable
 	{
 		IEnumerable<Client> GetClientsInPool(int poolId);
         Client AddClient(Client client);
         IEnumerable<Client> GetAllClients();
-    }
+		Client GetClient(int id);
+	}
 }

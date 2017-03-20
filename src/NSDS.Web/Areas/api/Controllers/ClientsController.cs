@@ -7,9 +7,9 @@ namespace NSDS.Web.Api.Controllers
 	[Route("api/clients")]
 	public class ClientsController : Controller
 	{
-        private readonly IClientsService clientService;
+        private readonly IClientsStorage clientService;
 
-        public ClientsController(IClientsService clientService)
+        public ClientsController(IClientsStorage clientService)
 		{
 			this.clientService = clientService;
 		}
