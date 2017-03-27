@@ -39,7 +39,7 @@ namespace NSDS.Core.Jobs
 						using (var stream = new StreamReader(await conn.GetStream()))
 						{
 							var version = JsonConvert.DeserializeObject(stream.ReadToEnd());
-							this.eventService.Invoke("VersionReceived", client, module, version);
+							this.eventService.Invoke("ModuleVersionReceived", client, module, version);
 						}
 					}
 					catch (Exception ex)

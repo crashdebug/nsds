@@ -14,6 +14,9 @@ namespace NSDS.Core.Models
 		[JsonProperty("version")]
 		public BaseVersion Version { get; set; }
 
+		[JsonProperty("url")]
+		public string Url { get; set; }
+
 		//[JsonIgnore]
 		//public Deployment Deployment { get; set; }
 	}
