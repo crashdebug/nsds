@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Runtime.Serialization;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSDS.Core;
 using NSDS.Core.Interfaces;
@@ -46,7 +49,7 @@ namespace NSDS.Tests
 	{
 		public bool Executed { get; internal set; }
 
-		public override CommandResult Execute(Client client, Module module)
+		public override CommandResult Execute(Client client, Module module, ILogger log)
 		{
 			this.Executed = true;
 			return new CommandResult

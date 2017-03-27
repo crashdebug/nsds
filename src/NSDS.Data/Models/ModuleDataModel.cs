@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NSDS.Core.Models;
 
 namespace NSDS.Data.Models
 {
-	public class ModuleDataModel : Module
+	public sealed class ModuleDataModel : Module
     {
 		[JsonProperty("id")]
 		public int Id { get; set; }
 
 		[JsonIgnore]
-		public virtual ICollection<ClientModuleDataModel> Clients { get; set; }
+		public string VersionId { get; set; }
 
 		[JsonProperty("deploymentId")]
 		public int DeploymentId { get; set; }

@@ -62,8 +62,6 @@ namespace NSDS.Web
 
 			services.RegisterTypes(typeof(JobBase), Assembly.Load(new AssemblyName("NSDS.Core")));
 
-			ApplicationDbContext.CommandTypes.Add(typeof(SshCommand));
-
 			var loggerFactory = new LoggerFactory();
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();

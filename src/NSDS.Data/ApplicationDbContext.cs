@@ -1,16 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NSDS.Core;
+using NSDS.Core.Models;
 using NSDS.Data.Models;
 
 namespace NSDS.Data
 {
 	public class ApplicationDbContext : DbContext
 	{
-		public static readonly ICollection<Type> CommandTypes = new List<Type>();
-
 		public ApplicationDbContext(DbContextOptions context) :
 			base(context)
 		{
@@ -26,15 +24,10 @@ namespace NSDS.Data
 			builder.Entity<BaseVersion>().ToTable("Versions").HasKey(v => v.Version);
 			builder.Entity<DateVersion>();
 
-			builder.Entity<ModuleDataModel>().Ignore(x => x.Version);
 			builder.Entity<ClientModuleDataModel>().HasKey(x => new { x.ClientId, x.ModuleId });
-			builder.Entity<Command>().HasKey(x => x.Name);
+			builder.Entity<CommandDataModel>().ToTable("Commands").HasKey(x => x.Name);
+			builder.Entity<DeploymentDataModel>().Property(x => x.Name).IsRequired(true);
 			builder.Entity<DeploymentCommandsDataModel>().HasKey(x => new { x.CommandName, x.DeploymentId });
-
-			foreach (var t in CommandTypes)
-			{
-				builder.Entity(t);
-			}
 		}
 
 		public void Seed()

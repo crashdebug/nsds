@@ -22,15 +22,16 @@ namespace NSDS.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Command",
+                name: "Commands",
                 columns: table => new
                 {
                     Name = table.Column<string>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false)
+                    Discriminator = table.Column<string>(nullable: false),
+                    Payload = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Command", x => x.Name);
+                    table.PrimaryKey("PK_Commands", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,7 +41,7 @@ namespace NSDS.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Created = table.Column<DateTime>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,9 +73,9 @@ namespace NSDS.Data.Migrations
                 {
                     table.PrimaryKey("PK_DeploymentCommands", x => new { x.CommandName, x.DeploymentId });
                     table.ForeignKey(
-                        name: "FK_DeploymentCommands_Command_CommandName",
+                        name: "FK_DeploymentCommands_Commands_CommandName",
                         column: x => x.CommandName,
-                        principalTable: "Command",
+                        principalTable: "Commands",
                         principalColumn: "Name",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -93,7 +94,8 @@ namespace NSDS.Data.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     DeploymentId = table.Column<int>(nullable: false),
                     Endpoint = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false)
+                    Name = table.Column<string>(nullable: false),
+                    VersionId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,6 +106,12 @@ namespace NSDS.Data.Migrations
                         principalTable: "Deployments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Modules_Versions_VersionId",
+                        column: x => x.VersionId,
+                        principalTable: "Versions",
+                        principalColumn: "Version",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -138,7 +146,7 @@ namespace NSDS.Data.Migrations
                     Created = table.Column<DateTime>(nullable: false),
                     DeploymentId = table.Column<int>(nullable: true),
                     ModuleId = table.Column<int>(nullable: false),
-                    ModuleName = table.Column<string>(nullable: true),
+                    Url = table.Column<string>(nullable: true),
                     VersionId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -221,6 +229,11 @@ namespace NSDS.Data.Migrations
                 column: "DeploymentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Modules_VersionId",
+                table: "Modules",
+                column: "VersionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Packages_DeploymentId",
                 table: "Packages",
                 column: "DeploymentId");
@@ -251,19 +264,19 @@ namespace NSDS.Data.Migrations
                 name: "Clients");
 
             migrationBuilder.DropTable(
-                name: "Command");
+                name: "Commands");
 
             migrationBuilder.DropTable(
                 name: "Modules");
-
-            migrationBuilder.DropTable(
-                name: "Versions");
 
             migrationBuilder.DropTable(
                 name: "Pools");
 
             migrationBuilder.DropTable(
                 name: "Deployments");
+
+            migrationBuilder.DropTable(
+                name: "Versions");
         }
     }
 }

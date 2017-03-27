@@ -9,7 +9,7 @@ namespace NSDS.Data.Models
 		[JsonProperty("id")]
 		public int Id { get; set; }
 
-		[JsonProperty("version")]
+		[JsonIgnore]
 		public string VersionId { get; set; }
 
 		[JsonProperty("module")]
@@ -17,9 +17,6 @@ namespace NSDS.Data.Models
 
 		[JsonProperty("moduleId")]
 		public int ModuleId { get; set; }
-
-		//[JsonProperty("module")]
-		//public override string ModuleName { get => this.Module.Name; set => throw new NotSupportedException(); }
 
 		[JsonProperty("deploymentId")]
 		public int? DeploymentId { get; set; }
