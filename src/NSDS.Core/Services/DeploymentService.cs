@@ -9,14 +9,22 @@ namespace NSDS.Core.Services
 {
 	public class DeploymentService : IDeploymentService
 	{
-		public Task<IEnumerable<CommandResult>> DeployModule(Client client, Module module, Deployment deployment, ILogger logger = null)
+		private readonly IEventService eventService;
+
+		public DeploymentService(IEventService eventService)
 		{
-			return Task.Run(() =>
+			this.eventService = eventService;
+		}
+
+		public Task<IEnumerable<CommandResult>> DeployModule(Deployment deployment, DeploymentArguments args, ILogger logger = null)
+		{
+			return Task.Run(async () =>
 			{
 				List<CommandResult> results = new List<CommandResult>();
 				foreach (var command in deployment.Commands)
 				{
-					var result = command.Execute(client, module, logger);
+					var result = new CommandResult { Command = command };
+					result = await command.Execute(args, result, logger);
 					results.Add(result);
 					if (!result.Success)
 					{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Newtonsoft.Json;
@@ -7,27 +8,30 @@ using NSDS.Core.Models;
 
 namespace NSDS.Data.Models
 {
-	public class ClientDataModel : Client
+	public class ClientDataModel //: Client
     {
-		[JsonProperty("id")]
 		public int Id { get; set; }
 
-		[JsonIgnore]
+		[Required]
+		public string Name { get; set; }
+
+		[Required]
+		public string Address { get; set; }
+
+		public bool Enabled { get; set; }
+
+		public DateTime Created { get; set; }
+
+		public int? PoolId { get; set; }
 		[ForeignKey("PoolId")]
 		public virtual PoolDataModel Pool { get; set; }
 
-		[JsonProperty("poolId")]
-		public int PoolId { get; set; }
-
-		[JsonIgnore]
 		public virtual ICollection<ClientModuleDataModel> ClientModules { get; set; }
 
 		[NotMapped]
-		[JsonProperty("modules")]
-		public override IEnumerable<Module> Modules
+		public IEnumerable<Module> Modules
 		{
-			get => this.ClientModules.Select(x => x.Module).AsEnumerable<Module>();
-			set => throw new NotSupportedException();
+			get => this.ClientModules.Select(x => x.Module.ToModule()).AsEnumerable();
 		}
 	}
 }

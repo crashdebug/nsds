@@ -9,9 +9,11 @@ namespace NSDS.Data.Models
 		[JsonIgnore]
 		public int ClientId { get; set; }
 		[JsonIgnore]
+		[ForeignKey("ClientId")]
 		public ClientDataModel Client { get; set; }
 
 		public int ModuleId { get; set; }
+		[ForeignKey("ModuleId")]
 		public ModuleDataModel Module { get; set; }
 
 		[ForeignKey("VersionId")]

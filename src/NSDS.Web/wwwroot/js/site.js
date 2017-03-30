@@ -9,7 +9,8 @@ app.controller('PoolsController', function PoolsController($scope, $http) {
 });
 
 app.controller('ClientsController', function ClientsController($scope, $http) {
-	$http.get('api/clients/pool/' + $scope.$parent.pool.id).then(function (response) {
+	$http.get('api/clients/').then(function (response) {
+		$scope.pools = _.groupBy(response.data, function (x) { return x.poolId; });
 		$scope.clients = _.each(response.data, function (x) {
 			x.status = function () {
 				return "ok";

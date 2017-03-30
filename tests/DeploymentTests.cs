@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSDS.Core;
@@ -35,9 +36,14 @@ namespace NSDS.Tests
 				Name = "test_deployment",
 				Commands = new Command[] { command }
 			};
-			IDeploymentService service = new DeploymentService();
+			var eventService = new EventService();
+			IDeploymentService service = new DeploymentService(eventService);
 
-			var result = await service.DeployModule(client, module, deployment);
+			var result = await service.DeployModule(deployment, new DeploymentArguments
+			{
+				Client = client,
+				Module = module,
+			});
 
 			Assert.AreEqual(1, result.Count());
 			Assert.IsTrue(command.Executed);
@@ -49,14 +55,14 @@ namespace NSDS.Tests
 	{
 		public bool Executed { get; internal set; }
 
-		public override CommandResult Execute(Client client, Module module, ILogger log)
+		public override Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger logger = null)
 		{
 			this.Executed = true;
-			return new CommandResult
+			return Task.Run(() =>
 			{
-				Command = this,
-				Success = true
-			};
+				result.Success = true;
+				return result;
+			});
 		}
 	}
 }

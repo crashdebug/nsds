@@ -8,7 +8,7 @@ using NSDS.Data;
 namespace NSDS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170327222619_Initial")]
+    [Migration("20170330221859_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,7 +48,7 @@ namespace NSDS.Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<int>("PoolId");
+                    b.Property<int?>("PoolId");
 
                     b.HasKey("Id");
 
@@ -125,19 +125,13 @@ namespace NSDS.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("DeploymentId");
-
-                    b.Property<string>("Discriminator");
+                    b.Property<int?>("DeploymentId");
 
                     b.Property<string>("Endpoint")
                         .IsRequired();
 
                     b.Property<string>("Name")
                         .IsRequired();
-
-                    b.Property<int>("TempId");
-
-                    b.Property<int>("TempId1");
 
                     b.Property<string>("VersionId");
 
@@ -148,8 +142,6 @@ namespace NSDS.Data.Migrations
                     b.HasIndex("VersionId");
 
                     b.ToTable("Modules");
-
-                    b.HasDiscriminator().HasValue("ModuleDataModel");
                 });
 
             modelBuilder.Entity("NSDS.Data.Models.PackageDataModel", b =>
@@ -205,8 +197,7 @@ namespace NSDS.Data.Migrations
                 {
                     b.HasOne("NSDS.Data.Models.PoolDataModel", "Pool")
                         .WithMany("Clients")
-                        .HasForeignKey("PoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PoolId");
                 });
 
             modelBuilder.Entity("NSDS.Data.Models.ClientModuleDataModel", b =>
@@ -219,7 +210,6 @@ namespace NSDS.Data.Migrations
                     b.HasOne("NSDS.Data.Models.ModuleDataModel", "Module")
                         .WithMany()
                         .HasForeignKey("ModuleId")
-                        .HasPrincipalKey("TempId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("NSDS.Core.BaseVersion", "Version")
@@ -244,8 +234,7 @@ namespace NSDS.Data.Migrations
                 {
                     b.HasOne("NSDS.Data.Models.DeploymentDataModel", "Deployment")
                         .WithMany()
-                        .HasForeignKey("DeploymentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("DeploymentId");
 
                     b.HasOne("NSDS.Core.BaseVersion", "Version")
                         .WithMany()
@@ -261,7 +250,6 @@ namespace NSDS.Data.Migrations
                     b.HasOne("NSDS.Data.Models.ModuleDataModel", "Module")
                         .WithMany()
                         .HasForeignKey("ModuleId")
-                        .HasPrincipalKey("TempId1")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("NSDS.Core.BaseVersion", "Version")

@@ -25,6 +25,6 @@ namespace NSDS.Tests
 
 	class DeploymentModel : Deployment
 	{
-		public override ICollection<Command> Commands { get; set; }
+		//public override ICollection<Command> Commands { get; set; }
 	}
 }

@@ -53,7 +53,7 @@ namespace NSDS.Data.Services
 
 		public IEnumerable<Client> GetAllClients()
 		{
-			return this.context.Clients;
+			return this.context.Clients.Include("ClientModules.Module");
 		}
 
 		public void AddClientToPool(Client cli, int poolId)

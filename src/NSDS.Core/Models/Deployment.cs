@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace NSDS.Core.Models
 {
-	public abstract class Deployment
+	public class Deployment
     {
 		[JsonProperty("name")]
 		public string Name { get; set; }
@@ -13,6 +13,6 @@ namespace NSDS.Core.Models
 		public DateTime Created { get; set; }
 
 		[JsonProperty("commands")]
-		public abstract ICollection<Command> Commands { get; set; }
+		public ICollection<Command> Commands { get; set; }
 	}
 }

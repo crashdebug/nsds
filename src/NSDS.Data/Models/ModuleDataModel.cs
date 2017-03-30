@@ -1,20 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using NSDS.Core;
 using NSDS.Core.Models;
 
 namespace NSDS.Data.Models
 {
-	public sealed class ModuleDataModel : Module
+	public sealed class ModuleDataModel
     {
-		[JsonProperty("id")]
 		public int Id { get; set; }
 
-		[JsonIgnore]
+		[Required]
+		public string Name { get; set; }
+
+		[Required]
+		public string Endpoint { get; set; }
+
+		public BaseVersion Version { get; set; }
+
 		public string VersionId { get; set; }
 
-		[JsonProperty("deploymentId")]
-		public int DeploymentId { get; set; }
+		public int? DeploymentId { get; set; }
 
-		[JsonProperty("deployment")]
 		public DeploymentDataModel Deployment { get; set; }
+
+		internal Module ToModule()
+		{
+			return new Module
+			{
+				Name = this.Name,
+				Endpoint = this.Endpoint,
+				Deployment = this.Deployment?.ToDeployment(),
+				Version = this.Version,
+			};
+		}
 	}
 }

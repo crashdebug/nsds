@@ -14,6 +14,12 @@ namespace NSDS.Web.Api.Controllers
 			this.clientService = clientService;
 		}
 
+		[Route(""), HttpGet]
+		public IActionResult AllClients()
+		{
+			return Ok(this.clientService.GetAllClients());
+		}
+
 		[Route("pool/{poolId}")]
 		public IActionResult ClientsInPool(int poolId)
 		{

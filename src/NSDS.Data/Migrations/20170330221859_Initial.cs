@@ -92,7 +92,7 @@ namespace NSDS.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    DeploymentId = table.Column<int>(nullable: false),
+                    DeploymentId = table.Column<int>(nullable: true),
                     Endpoint = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     VersionId = table.Column<string>(nullable: true)
@@ -105,7 +105,7 @@ namespace NSDS.Data.Migrations
                         column: x => x.DeploymentId,
                         principalTable: "Deployments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Modules_Versions_VersionId",
                         column: x => x.VersionId,
@@ -124,7 +124,7 @@ namespace NSDS.Data.Migrations
                     Created = table.Column<DateTime>(nullable: false),
                     Enabled = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(nullable: false),
-                    PoolId = table.Column<int>(nullable: false)
+                    PoolId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -134,7 +134,7 @@ namespace NSDS.Data.Migrations
                         column: x => x.PoolId,
                         principalTable: "Pools",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NSDS.Core;
+using NSDS.Core.Commands;
 using NSDS.Core.Models;
 using NSDS.Data.Models;
 
@@ -25,6 +27,7 @@ namespace NSDS.Data
 			builder.Entity<DateVersion>();
 
 			builder.Entity<ClientModuleDataModel>().HasKey(x => new { x.ClientId, x.ModuleId });
+			builder.Entity<ClientModuleDataModel>().HasOne(x => x.Module).WithMany().HasForeignKey("ModuleId");
 			builder.Entity<CommandDataModel>().ToTable("Commands").HasKey(x => x.Name);
 			builder.Entity<DeploymentDataModel>().Property(x => x.Name).IsRequired(true);
 			builder.Entity<DeploymentCommandsDataModel>().HasKey(x => new { x.CommandName, x.DeploymentId });
@@ -34,7 +37,58 @@ namespace NSDS.Data
 		{
 			this.Database.Migrate();
 
-			var uiVersionOld = this.Versions.FirstOrDefault(x => x.Version == "2017-02-14 00:00:00");
+			var module = this.Modules.SingleOrDefault(x => x.Name == "www");
+			if (module == null)
+			{
+				module = this.Modules.Add(new ModuleDataModel
+				{
+					Name = "www",
+					Endpoint = "/api/version",
+				}).Entity;
+				this.SaveChanges();
+			}
+
+			var client = this.Clients.SingleOrDefault(x => x.Name == "nsds");
+			if (client == null)
+			{
+				client = new ClientDataModel
+				{
+					Name = "nsds",
+					Address = "localhost:5000",
+					Enabled = true,
+					Created = DateTime.UtcNow,
+				};
+				client.ClientModules = new List<ClientModuleDataModel> { new ClientModuleDataModel { Client = client, Module = module } };
+				this.Clients.Add(client);
+				this.SaveChanges();
+			}
+
+			var build = this.Deployments.SingleOrDefault(x => x.Name == "build");
+			if (build == null)
+			{
+				build = this.Deployments.Add(new DeploymentDataModel
+				{
+					Name = "build",
+					Created = DateTime.UtcNow,
+					Commands = new List<Command> { new ShellCommand("dotnet", "build") }
+				}).Entity;
+				this.SaveChanges();
+			}
+
+			var package = this.Packages.SingleOrDefault(x => x.Module == module);
+			if (package == null)
+			{
+				package = this.Packages.Add(new PackageDataModel
+				{
+					Name = "build www",
+					Created = DateTime.UtcNow,
+					Module = module,
+					Deployment = build,
+				}).Entity;
+				this.SaveChanges();
+			}
+
+			/*var uiVersionOld = this.Versions.FirstOrDefault(x => x.Version == "2017-02-14 00:00:00");
 			if (uiVersionOld == null)
 			{
 				uiVersionOld = new DateVersion("2017-02-14 00:00:00");
@@ -167,7 +221,7 @@ namespace NSDS.Data
 				};
 				this.Packages.Add(package);
 				this.SaveChanges();
-			}
+			}*/
 		}
 
         public DbSet<PoolDataModel> Pools { get; set; }

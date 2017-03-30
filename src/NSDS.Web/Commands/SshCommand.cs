@@ -1,8 +1,8 @@
 using System;
-using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NSDS.Core;
-using NSDS.Core.Models;
+using NSDS.Core.Interfaces;
 using Renci.SshNet;
 
 namespace NSDS.Web.Commands
@@ -32,7 +32,7 @@ namespace NSDS.Web.Commands
 			}
 		}
 
-		public override CommandResult Execute(Client client, Module module, ILogger log)
+		public override Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger log)
 		{
 			throw new NotImplementedException();
 		}

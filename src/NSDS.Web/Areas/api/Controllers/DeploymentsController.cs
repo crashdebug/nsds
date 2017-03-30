@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -51,7 +52,17 @@ namespace NSDS.Web.Areas.api.Controllers
 				var client = this.clientStorage.GetClient(id);
 				if (client != null)
 				{
-					var task = this.deploymentService.DeployModule(client, module, deployment);
+					var task = this.deploymentService.DeployModule(deployment, new DeploymentArguments
+					{
+						Client = client,
+						Module = module,
+						Environment = new Dictionary<string, object>
+						{
+							{ "workingDir", Directory.GetCurrentDirectory() },
+							{ "date", DateTime.UtcNow },
+							{ "deployment", name },
+						}
+					});
 					tasks.Add(task);
 				}
 			}

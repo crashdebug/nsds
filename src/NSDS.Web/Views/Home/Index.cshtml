@@ -33,15 +33,12 @@
 	</div>
 </div>
 <div ng-controller="PoolsController">
-	<div class="pool" ng-repeat="pool in pools">
-		<b>{{ pool.name }}</b>
-		<ul class="client-list" ng-controller="ClientsController">
-			<li class="client status-{{ cli.status() }}" ng-repeat="cli in clients">
-				<b>{{ cli.name }}</b>
-				<ul class="module-list">
-					<li class="module" ng-repeat="mod in cli.modules">{{ mod.module.name }} <span class="version">{{ mod.versionId }}</span></li>
-				</ul>
-			</li>
-		</ul>
-	</div>
+	<ul class="client-list" ng-controller="ClientsController">
+		<li class="client status-{{ cli.status() }}" ng-repeat="cli in clients">
+			<b>{{ cli.name }}</b>
+			<ul class="module-list">
+				<li class="module" ng-repeat="mod in cli.modules">{{ mod.module.name }} <span class="version">{{ mod.versionId }}</span></li>
+			</ul>
+		</li>
+	</ul>
 </div>

@@ -23,12 +23,12 @@ namespace NSDS.Data.Services
 
 		public Deployment GetDeployment(string name)
 		{
-			return this.context.Deployments.Include(x => x.DeploymentCommands).Single(x => x.Name == name);
+			return this.context.Deployments.Include(x => x.DeploymentCommands).Single(x => x.Name == name).ToDeployment();
 		}
 
 		public IEnumerable<Deployment> GetDeployments()
 		{
-			return this.context.Deployments;
+			return this.context.Deployments.Select(x => x.ToDeployment());
 		}
 	}
 }
