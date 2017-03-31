@@ -54,6 +54,7 @@ namespace NSDS.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Created = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -146,6 +147,7 @@ namespace NSDS.Data.Migrations
                     Created = table.Column<DateTime>(nullable: false),
                     DeploymentId = table.Column<int>(nullable: true),
                     ModuleId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     Url = table.Column<string>(nullable: true),
                     VersionId = table.Column<string>(nullable: true)
                 },

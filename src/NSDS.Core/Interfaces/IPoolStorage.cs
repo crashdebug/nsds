@@ -7,6 +7,6 @@ namespace NSDS.Core.Interfaces
 	public interface IPoolStorage : IDisposable
 	{
 		IEnumerable<Pool> GetPools();
-		Pool AddPool(Pool pool);
+		void AddPool(Pool pool);
 	}
 }

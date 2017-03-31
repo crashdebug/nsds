@@ -19,12 +19,15 @@ namespace NSDS.Data.Models
 		{
 		}
 
-		/*public CommandDataModel(Command val)
+		public static CommandDataModel FromCommand(Command val)
 		{
-			this.Name = val.Name;
-			this.Discriminator = val.GetType().FullName;
-			this.Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(val));
-		}*/
+			return new CommandDataModel
+			{
+				Name = val.Name,
+				Discriminator = val.GetType().FullName,
+				Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(val)),
+			};
+		}
 
 		internal Command Deserialize()
 		{

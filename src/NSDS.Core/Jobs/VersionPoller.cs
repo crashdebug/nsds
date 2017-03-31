@@ -30,7 +30,7 @@ namespace NSDS.Core.Jobs
 					continue;
 				}
 
-				foreach (var module in this.moduleService.GetClientModules(client))
+				foreach (var module in client.Modules)
 				{
 					try
 					{

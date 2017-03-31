@@ -17,17 +17,16 @@ namespace NSDS.Data.Services
 			this.context = context;
 		}
 
-		public Client AddClient(Client cli)
+		public void AddClient(Client cli)
 		{
-			var dbClient = new ClientDataModel
+			this.context.Clients.Add(new ClientDataModel
 			{
 				Name = cli.Name,
 				Address = cli.Address,
 				Enabled = cli.Enabled,
-			};
-			this.context.Clients.Add(dbClient);
+				Created = DateTime.UtcNow,
+			});
 			this.context.SaveChanges();
-			return dbClient;
 		}
 
 		public void RemoveClient(Client client)
@@ -48,12 +47,12 @@ namespace NSDS.Data.Services
 
 		public Client GetClient(int id)
 		{
-			return this.context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id);
+			return this.context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id).ToClient();
 		}
 
 		public IEnumerable<Client> GetAllClients()
 		{
-			return this.context.Clients.Include("ClientModules.Module");
+			return this.context.Clients.Include("ClientModules.Module").Select(x => x.ToClient());
 		}
 
 		public void AddClientToPool(Client cli, int poolId)
@@ -67,6 +66,7 @@ namespace NSDS.Data.Services
 		{
 			return this.context.Clients.Where(c => c.Pool.Id == poolId)
 				.Include(c => c.ClientModules).ThenInclude(m => m.Module)
+				.Select(c => c.ToClient())
 				.ToArray();
 		}
 

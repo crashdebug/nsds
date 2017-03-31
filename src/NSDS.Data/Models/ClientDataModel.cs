@@ -8,7 +8,7 @@ using NSDS.Core.Models;
 
 namespace NSDS.Data.Models
 {
-	public class ClientDataModel //: Client
+	public class ClientDataModel
     {
 		public int Id { get; set; }
 
@@ -28,10 +28,16 @@ namespace NSDS.Data.Models
 
 		public virtual ICollection<ClientModuleDataModel> ClientModules { get; set; }
 
-		[NotMapped]
-		public IEnumerable<Module> Modules
+		internal Client ToClient()
 		{
-			get => this.ClientModules.Select(x => x.Module.ToModule()).AsEnumerable();
+			return new Client
+			{
+				Address = this.Address,
+				Created = this.Created,
+				Enabled = this.Enabled,
+				Modules = this.ClientModules.Select(x => x.Module.ToModule()).AsEnumerable(),
+				Name = this.Name,
+			};
 		}
 	}
 }

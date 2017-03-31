@@ -17,15 +17,14 @@ namespace NSDS.Data.Services
 			this.context = context;
 		}
 
-		public Pool AddPool(Pool pool)
+		public void AddPool(Pool pool)
 		{
-			var dbPool = new PoolDataModel
+			this.context.Pools.Add(new PoolDataModel
 			{
-				Name = pool.Name
-			};
-			this.context.Pools.Add(dbPool);
+				Name = pool.Name,
+				Created = DateTime.UtcNow,
+			});
 			this.context.SaveChanges();
-			return dbPool;
 		}
 
 		public void RemovePool(int poolId)
@@ -45,7 +44,7 @@ namespace NSDS.Data.Services
 
 		public IEnumerable<Pool> GetPools()
 		{
-			return this.context.Pools.ToArray();
+			return this.context.Pools.Select(x => x.ToPool()).ToArray();
 		}
 	}
 }

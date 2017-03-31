@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
@@ -17,17 +16,15 @@ namespace NSDS.Tests
 			this.clients.AddRange(clients);
 		}
 
-		public Client AddClient(Client client)
+		public void AddClient(Client client)
 		{
-			var model = new ClientModel
+			this.clients.Add(new ClientModel
 			{
 				Name = client.Name,
 				Address = client.Address,
 				Enabled = client.Enabled,
 				Modules = new List<Module>()
-			};
-			this.clients.Add(model);
-			return model;
+			});
 		}
 
 		public IEnumerable<Client> GetAllClients()
@@ -45,15 +42,13 @@ namespace NSDS.Tests
 			return this.pools.AsEnumerable<Pool>();
 		}
 
-		public Pool AddPool(Pool pool)
+		public void AddPool(Pool pool)
 		{
-			var dbPool = new PoolModel
+			this.pools.Add(new PoolModel
 			{
 				Id = this.pools.Count + 1,
 				Name = pool.Name
-			};
-			this.pools.Add(dbPool);
-			return dbPool;
+			});
 		}
 
 		public IEnumerable<Module> GetClientModules(Client client)

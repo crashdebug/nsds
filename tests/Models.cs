@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NSDS.Core;
+﻿using System.Collections.Generic;
 using NSDS.Core.Models;
 
 namespace NSDS.Tests
@@ -15,7 +13,6 @@ namespace NSDS.Tests
 	class ClientModel : Client
 	{
 		public int Id { get; internal set; }
-		public override IEnumerable<Module> Modules { get; set; }
 	}
 
 	class ModuleModel : Module
@@ -25,6 +22,6 @@ namespace NSDS.Tests
 
 	class DeploymentModel : Deployment
 	{
-		//public override ICollection<Command> Commands { get; set; }
+		public int Id { get; internal set; }
 	}
 }

@@ -7,7 +7,7 @@ namespace NSDS.Core.Interfaces
 	public interface IClientsStorage : IDisposable
 	{
 		IEnumerable<Client> GetClientsInPool(int poolId);
-        Client AddClient(Client client);
+        void AddClient(Client client);
         IEnumerable<Client> GetAllClients();
 		Client GetClient(int id);
 	}

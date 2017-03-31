@@ -5,6 +5,7 @@ namespace NSDS.Data.Models
 	public class DeploymentCommandsDataModel
     {
 		public int DeploymentId { get; set; }
+		[ForeignKey("DeploymentId")]
 		public DeploymentDataModel Deployment { get; set; }
 
 		public string CommandName { get; set; }

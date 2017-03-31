@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using NSDS.Core;
 using NSDS.Core.Models;
 
@@ -15,12 +15,12 @@ namespace NSDS.Data.Models
 		[Required]
 		public string Endpoint { get; set; }
 
+		public string VersionId { get; set; }
+		[ForeignKey("VersionId")]
 		public BaseVersion Version { get; set; }
 
-		public string VersionId { get; set; }
-
 		public int? DeploymentId { get; set; }
-
+		[ForeignKey("DeploymentId")]
 		public DeploymentDataModel Deployment { get; set; }
 
 		internal Module ToModule()

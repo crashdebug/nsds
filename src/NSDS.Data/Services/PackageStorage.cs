@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NSDS.Core.Interfaces;
@@ -26,6 +25,7 @@ namespace NSDS.Data.Services
 			return this.context.Packages
 				.Include(x => x.Module).ThenInclude(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
 				.Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.Select(x => x.ToPackage())
 				.AsEnumerable();
 		}
 	}

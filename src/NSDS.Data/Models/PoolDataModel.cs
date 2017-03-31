@@ -1,15 +1,30 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using NSDS.Core.Models;
 
 namespace NSDS.Data.Models
 {
-	public class PoolDataModel : Pool
+	public class PoolDataModel
     {
-		[JsonProperty("id")]
 		public int Id { get; set; }
 
-		[JsonProperty("clients")]
+		[Required]
+		public string Name { get; set; }
+
+		public DateTime Created { get; set; }
+
 		public virtual ICollection<ClientDataModel> Clients { get; set; }
+
+		internal Pool ToPool()
+		{
+			return new Pool
+			{
+				Name = this.Name,
+				Created = this.Created,
+				Clients = this.Clients?.Select(x => x.ToClient()).AsEnumerable(),
+			};
+		}
 	}
 }

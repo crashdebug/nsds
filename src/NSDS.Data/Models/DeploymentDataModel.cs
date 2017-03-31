@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using NSDS.Core;
 using NSDS.Core.Models;
@@ -11,22 +11,19 @@ namespace NSDS.Data.Models
 {
 	public class DeploymentDataModel //: Deployment
     {
-		[JsonProperty("id")]
 		public int Id { get; set; }
 
-		[JsonProperty("name")]
+		[Required]
 		public string Name { get; set; }
 
-		[JsonProperty("created")]
 		public DateTime Created { get; set; }
 
-		[JsonIgnore]
 		public virtual ICollection<DeploymentCommandsDataModel> DeploymentCommands { get; set; }
 
 		[NotMapped]
 		public ICollection<Command> Commands
 		{
-			get => this.DeploymentCommands.Select(x => x.Command.Deserialize()).ToList();
+			get => this.DeploymentCommands.Select(x => x.Command?.Deserialize()).ToList();
 			set
 			{
 				this.DeploymentCommands.Clear();
@@ -36,12 +33,7 @@ namespace NSDS.Data.Models
 					this.DeploymentCommands.Add(new DeploymentCommandsDataModel
 					{
 						Deployment = this,
-						Command = new CommandDataModel
-						{
-							Discriminator = val.GetType().FullName,
-							Name = val.Name,
-							Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(val))
-						},
+						Command = CommandDataModel.FromCommand(val),
 						Order = order++,
 					});
 				}
