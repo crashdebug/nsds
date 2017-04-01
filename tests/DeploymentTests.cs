@@ -39,7 +39,7 @@ namespace NSDS.Tests
 			var eventService = new EventService();
 			IDeploymentService service = new DeploymentService(eventService);
 
-			var result = await service.DeployModule(deployment, new DeploymentArguments
+			var result = await service.Deploy(deployment, new DeploymentArguments
 			{
 				Client = client,
 				Module = module,

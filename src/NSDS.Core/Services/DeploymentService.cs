@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace NSDS.Core.Services
 			this.eventService = eventService;
 		}
 
-		public Task<IEnumerable<CommandResult>> DeployModule(Deployment deployment, DeploymentArguments args, ILogger logger = null)
+		public Task<IEnumerable<CommandResult>> Deploy(Deployment deployment, DeploymentArguments args, ILogger logger = null)
 		{
 			return Task.Run(async () =>
 			{

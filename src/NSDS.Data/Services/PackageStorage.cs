@@ -20,6 +20,14 @@ namespace NSDS.Data.Services
 			this.context.Dispose();
 		}
 
+		public Package GetPackage(int packageId)
+		{
+			return this.context.Packages
+				.Include(x => x.Module).ThenInclude(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.SingleOrDefault(x => x.Id == packageId)?.ToPackage();
+		}
+
 		public IEnumerable<Package> GetPackages()
 		{
 			return this.context.Packages

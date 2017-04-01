@@ -7,7 +7,7 @@ namespace NSDS.Tests
 	{
 		public int Id { get; set; }
 
-		public List<Client> Clients = new List<Client>();
+		public new List<Client> Clients = new List<Client>();
 	}
 
 	class ClientModel : Client

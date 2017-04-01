@@ -28,7 +28,7 @@ namespace NSDS.Data.Services
 
 		public Module GetModule(int moduleId)
 		{
-			return this.context.Modules.Single(x => x.Id == moduleId).ToModule();
+			return this.context.Modules.SingleOrDefault(x => x.Id == moduleId)?.ToModule();
 		}
 	}
 }
