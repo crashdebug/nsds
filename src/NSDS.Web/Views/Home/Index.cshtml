@@ -28,7 +28,7 @@
 	<div class="package" ng-repeat="package in packages">
 		<strong>{{ package.module.name }}</strong><br/>
 		<span class="version">{{ package.version }}</span><br/>
-		<a ng-if="package.deployment" href="/api/deploy/{{ package.deployment.name }}">{{ package.deployment.name }}</a><br/>
+		<a ng-if="package.deployment" href="/api/deploy/package/{{ package.deployment.name }}/{{ package.name }}">{{ package.deployment.name }}</a><br/>
 		<a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.deployment.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a>
 	</div>
 </div>

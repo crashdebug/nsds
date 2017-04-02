@@ -34,7 +34,8 @@ namespace NSDS.Core.Commands
 					CreateNoWindow = true,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
-					UseShellExecute = true,
+					// Must be false
+					UseShellExecute = false,
 					WorkingDirectory = args.Environment.ContainsKey("workingDir") ? args.Environment["workingDir"].ToString() : this.WorkingDirectory,
 					FileName = this.Command,
 				},

@@ -8,7 +8,7 @@ using NSDS.Data;
 namespace NSDS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170331225307_Initial")]
+    [Migration("20170402222520_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

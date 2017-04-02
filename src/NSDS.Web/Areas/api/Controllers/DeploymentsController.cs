@@ -33,8 +33,8 @@ namespace NSDS.Web.Areas.api.Controllers
 			return Ok(this.deploymentStorage.GetDeployments());
 		}
 
-		[Route("package/{name}/{packageId}"), HttpGet]
-		public Task<IActionResult> ExecutePackageDeploymentAsync(string name, int packageId)
+		[Route("package/{name}/{packageName}"), HttpGet]
+		public Task<IActionResult> ExecutePackageDeploymentAsync(string name, string packageName)
 		{
 			return Task.Run<IActionResult>(() =>
 			{
@@ -43,10 +43,10 @@ namespace NSDS.Web.Areas.api.Controllers
 				{
 					return BadRequest($"Deployment with name '{name}' not found");
 				}
-				var package = this.packageStorage.GetPackage(packageId);
+				var package = this.packageStorage.GetPackage(packageName);
 				if (package == null)
 				{
-					return BadRequest($"Package with id {packageId} not found");
+					return BadRequest($"Package with id {packageName} not found");
 				}
 				var task = this.deploymentService.Deploy(deployment, new DeploymentArguments
 				{

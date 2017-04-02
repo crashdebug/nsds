@@ -7,6 +7,6 @@ namespace NSDS.Core.Interfaces
 	public interface IPackageStorage : IDisposable
 	{
 		IEnumerable<Package> GetPackages();
-		Package GetPackage(int packageId);
+		Package GetPackage(string packageName);
 	}
 }

@@ -232,5 +232,6 @@ namespace NSDS.Data
 		public DbSet<BaseVersion> Versions { get; set; }
 		public DbSet<DeploymentDataModel> Deployments { get; set; }
 		public DbSet<DeploymentCommandsDataModel> DeploymentCommands { get; set; }
+		public DbSet<CommandDataModel> Commands { get; set; }
 	}
 }

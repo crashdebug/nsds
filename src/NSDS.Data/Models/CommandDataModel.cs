@@ -24,7 +24,7 @@ namespace NSDS.Data.Models
 			return new CommandDataModel
 			{
 				Name = val.Name,
-				Discriminator = val.GetType().FullName,
+				Discriminator = val.GetType().AssemblyQualifiedName,
 				Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(val)),
 			};
 		}
