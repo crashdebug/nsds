@@ -5,8 +5,9 @@
 	<environment names="Development">
 		<script src="~/lib/jquery/dist/jquery.js"></script>
 		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-		<script src="/lib/angular/angular.js"></script>
-		<script src="/lib/underscore/underscore.js"></script>
+		<script src="~/lib/angular/angular.js"></script>
+		<script src="~/lib/underscore/underscore.js"></script>
+		<script src="~/lib/spin.js/spin.js"></script>
 		<script src="~/js/site.js" asp-append-version="true"></script>
 	</environment>
 	<environment names="Staging,Production">
@@ -18,8 +19,9 @@
 				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
 		</script>
-		<script src="/lib/angular/angular.min.js"></script>
-		<script src="/lib/underscore/underscore-min.js"></script>
+		<script src="~/lib/angular/angular.min.js"></script>
+		<script src="~/lib/underscore/underscore-min.js"></script>
+		<script src="~/lib/spin.js/spin.min.js"></script>
 		<script src="~/js/site.min.js" asp-append-version="true"></script>
 	</environment>
 }
@@ -28,7 +30,7 @@
 	<div class="package" ng-repeat="package in packages">
 		<strong>{{ package.module.name }}</strong><br/>
 		<span class="version">{{ package.version }}</span><br/>
-		<a ng-if="package.deployment" href="/api/deploy/package/{{ package.deployment.name }}/{{ package.name }}">{{ package.deployment.name }}</a><br/>
+		<a ng-if="package.deployment" ng-click="deploy(package)" href="#">{{ package.deployment.name }}</a><span id="{{ package.$$hashKey.replace(':', '_') }}"></span><br/>
 		<a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.deployment.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a>
 	</div>
 </div>

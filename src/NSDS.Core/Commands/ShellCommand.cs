@@ -40,11 +40,16 @@ namespace NSDS.Core.Commands
 					FileName = this.Command,
 				},
 			};
+
 			process.OutputDataReceived += (sender, arg) => logger?.LogInformation(arg.Data);
 			process.ErrorDataReceived += (sender, arg) => logger?.LogError(arg.Data);
+
 			return Task.Run(() =>
 			{
 				process.Start();
+				process.BeginOutputReadLine();
+				process.BeginErrorReadLine();
+
 				if (!this.Timeout.HasValue)
 				{
 					process.WaitForExit();
@@ -53,6 +58,7 @@ namespace NSDS.Core.Commands
 				{
 					result.Success = this.SuccessCodes.Contains(process.ExitCode);
 				}
+				process.Dispose();
 				return result;
 			});
 		}

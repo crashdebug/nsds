@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using NSDS.Core;
+using NSDS.Core.Extensions;
 using NSDS.Core.Interfaces;
 
 namespace NSDS.Web.Areas.api.Controllers
@@ -33,22 +36,26 @@ namespace NSDS.Web.Areas.api.Controllers
 			return Ok(this.deploymentStorage.GetDeployments());
 		}
 
+		[Produces("text/plain")]
 		[Route("package/{name}/{packageName}"), HttpGet]
-		public Task<IActionResult> ExecutePackageDeploymentAsync(string name, string packageName)
+		public Task ExecutePackageDeploymentAsync(string name, string packageName)
 		{
-			return Task.Run<IActionResult>(() =>
+			return Task.Run(async () =>
 			{
 				var deployment = this.deploymentStorage.GetDeployment(name);
 				if (deployment == null)
 				{
-					return BadRequest($"Deployment with name '{name}' not found");
+					this.Error(400, $"Deployment with name '{name}' not found");
+					return;
 				}
 				var package = this.packageStorage.GetPackage(packageName);
 				if (package == null)
 				{
-					return BadRequest($"Package with id {packageName} not found");
+					this.Error(400, $"Package with id {packageName} not found");
+					return;
 				}
-				var task = this.deploymentService.Deploy(deployment, new DeploymentArguments
+				var logger = new ResponseLogger(this.Response.Body);
+				await this.deploymentService.Deploy(deployment, new DeploymentArguments
 				{
 					Package = package,
 					Environment = new Dictionary<string, object>
@@ -57,9 +64,7 @@ namespace NSDS.Web.Areas.api.Controllers
 						{ "date", DateTime.UtcNow },
 						{ "deployment", name },
 					}
-				});
-				task.Wait();
-				return Ok();
+				}, logger);
 			});
 		}
 
@@ -103,13 +108,61 @@ namespace NSDS.Web.Areas.api.Controllers
 					 switch (t.Status)
 					 {
 						 case TaskStatus.RanToCompletion:
-							 return Ok(t.Result);
+							 return Ok();
 						 default:
 							 return BadRequest();
 					 }
 				 });
 			}
 			return Ok();
+		}
+
+		private void Error(int statusCode, string message)
+		{
+			this.Response.StatusCode = statusCode;
+			this.Response.Body.Write(Encoding.UTF8.GetBytes(message));
+		}
+	}
+
+	class ResponseLogger : ILogger
+	{
+		private Stack<Scope> stack = new Stack<Scope>();
+		private readonly StreamWriter stream;
+
+		public ResponseLogger(Stream body)
+		{
+			this.stream = new StreamWriter(body);
+		}
+
+		public IDisposable BeginScope<TState>(TState state)
+		{
+			Scope scope = new Scope(state);
+			this.stack.Push(scope);
+			return scope;
+		}
+
+		public bool IsEnabled(LogLevel logLevel)
+		{
+			return true;
+		}
+
+		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+		{
+			this.stream.WriteLine(formatter(state, exception));
+		}
+
+		private class Scope : IDisposable
+		{
+			private object state;
+
+			public Scope(object state)
+			{
+				this.state = state;
+			}
+
+			public void Dispose()
+			{
+			}
 		}
 	}
 }
