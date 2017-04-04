@@ -25,7 +25,7 @@ namespace NSDS.Core.Services
 				foreach (var command in deployment.Commands)
 				{
 					var result = new CommandResult { Command = command };
-					result = await command.Execute(args, result, logger);
+					await command.Execute(args, result, logger);
 					results.Add(result);
 					if (!result.Success)
 					{

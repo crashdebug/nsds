@@ -55,13 +55,12 @@ namespace NSDS.Tests
 	{
 		public bool Executed { get; internal set; }
 
-		public override Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger logger = null)
+		public override Task Execute(DeploymentArguments args, CommandResult result, ILogger logger = null)
 		{
 			this.Executed = true;
 			return Task.Run(() =>
 			{
 				result.Success = true;
-				return result;
 			});
 		}
 	}

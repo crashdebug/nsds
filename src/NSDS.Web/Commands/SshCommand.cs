@@ -32,7 +32,7 @@ namespace NSDS.Web.Commands
 			}
 		}
 
-		public override Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger log)
+		public override Task Execute(DeploymentArguments args, CommandResult result, ILogger log)
 		{
 			throw new NotImplementedException();
 		}

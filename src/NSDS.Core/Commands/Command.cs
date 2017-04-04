@@ -11,7 +11,7 @@ namespace NSDS.Core
 	{
 		public string Name { get; set; }
 
-		public abstract Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger logger = null);
+		public abstract Task Execute(DeploymentArguments args, CommandResult result, ILogger logger = null);
 	}
 
 	public class CommandResult

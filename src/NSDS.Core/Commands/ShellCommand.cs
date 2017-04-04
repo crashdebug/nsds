@@ -24,7 +24,7 @@ namespace NSDS.Core.Commands
 			this.SuccessCodes = new int[] { 0 };
 		}
 
-		public override Task<CommandResult> Execute(DeploymentArguments args, CommandResult result, ILogger logger = null)
+		public override Task Execute(DeploymentArguments args, CommandResult result, ILogger logger = null)
 		{
 			var process = new Process
 			{
@@ -59,7 +59,6 @@ namespace NSDS.Core.Commands
 					result.Success = this.SuccessCodes.Contains(process.ExitCode);
 				}
 				process.Dispose();
-				return result;
 			});
 		}
 	}
