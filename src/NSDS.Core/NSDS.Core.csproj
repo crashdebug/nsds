@@ -17,6 +17,7 @@
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
 
