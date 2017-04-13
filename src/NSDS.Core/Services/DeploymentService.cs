@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
@@ -11,29 +12,71 @@ namespace NSDS.Core.Services
 	public class DeploymentService : IDeploymentService
 	{
 		private readonly IEventService eventService;
+		private readonly ConnectionFactory connectionFactory;
+		private readonly VersionResolver versionConsumer;
 
-		public DeploymentService(IEventService eventService)
+		public DeploymentService(IEventService eventService, ConnectionFactory connectionFactory, VersionResolver versionConsumer)
 		{
 			this.eventService = eventService;
+			this.connectionFactory = connectionFactory;
+			this.versionConsumer = versionConsumer;
 		}
 
-		public Task<IEnumerable<CommandResult>> Deploy(Deployment deployment, DeploymentArguments args, ILogger logger = null)
+		public async Task<DeploymentResult> Deploy(Package package, IDictionary<string, object> environment = null, ILogger logger = null)
 		{
-			return Task.Run(async () =>
+			var result = await this.Deploy(package.Deployment, new DeploymentArguments
 			{
-				List<CommandResult> results = new List<CommandResult>();
-				foreach (var command in deployment.Commands)
+				Package = package,
+				Environment = environment,
+			}, logger);
+			result.Version = await GetVersion(package.Endpoint, result);
+			return result;
+		}
+
+		public async Task<DeploymentResult> Deploy(Client client, Module module, IDictionary<string, object> environment = null, ILogger logger = null)
+		{
+			var result = await this.Deploy(module.Deployment, new DeploymentArguments
+			{
+				Client = client,
+				Module = module,
+				Environment = environment,
+			}, logger);
+			result.Version = await GetVersion(module.Endpoint, result);
+			return result;
+		}
+
+		private async Task<BaseVersion> GetVersion(VersionResource resource, DeploymentResult result)
+		{
+			if (!result.Success || string.IsNullOrWhiteSpace(resource.Url))
+			{
+				return null;
+			}
+			using (var conn = this.connectionFactory.CreateConnection(new Uri(resource.Url)))
+			{
+				using (var reader = new StreamReader(await conn.GetStream()))
 				{
-					var result = new CommandResult { Command = command };
-					await command.Execute(args, result, logger);
-					results.Add(result);
-					if (!result.Success)
-					{
-						break;
-					}
+					return this.versionConsumer.CheckVersion(JsonConvert.DeserializeXmlNode(await reader.ReadToEndAsync(), "root"), resource.PathQuery);
 				}
-				return results.AsEnumerable();
-			});
+			}
+		}
+
+		private async Task<DeploymentResult> Deploy(Deployment deployment, DeploymentArguments args, ILogger logger = null)
+		{
+			var result = new DeploymentResult();
+			foreach (var command in deployment.Commands)
+			{
+				var cmdResult = new CommandResult { Command = command };
+				using (var scope = logger?.BeginScope(result))
+				{
+					await command.Execute(args, cmdResult, logger);
+				}
+				result.Add(cmdResult);
+				if (!cmdResult.Success)
+				{
+					break;
+				}
+			}
+			return result;
 		}
 	}
 }

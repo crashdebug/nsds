@@ -5,6 +5,6 @@ namespace NSDS.Core.Interfaces
 {
 	public interface IModuleStorage : IDisposable
 	{
-		Module GetModule(int moduleId);
+		Module GetModule(string name);
 	}
 }

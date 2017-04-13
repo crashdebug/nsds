@@ -16,6 +16,9 @@ app.controller('ClientsController', function ClientsController($scope, $http) {
 				return "ok";
 			}
 		});
+		$scope.deploy = function (client, module) {
+
+		};
 	});
 });
 
@@ -46,7 +49,7 @@ app.controller('PackagesController', function PackagesController($scope, $http) 
 			, hwaccel: false // Whether to use hardware acceleration
 			, position: 'relative' // Element positioning
 		}).spin(parent);
-		$http.get('/api/deploy/package/' + package.deployment.name + '/' + package.name).then(function (response) {
+		$http.get('/api/deploy/package/' + package.name).then(function (response) {
 //			console.log(response.data);
 			package.isDeploying = false;
 			spinner.stop();

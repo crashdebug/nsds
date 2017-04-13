@@ -67,9 +67,9 @@ namespace NSDS.Tests
 			this.pools.Clear();
 		}
 
-		public Module GetModule(int moduleId)
+		public Module GetModule(string name)
 		{
-			return this.modules.Single(x => x.Id == moduleId);
+			return this.modules.Single(x => x.Name == name);
 		}
 
 		public Client GetClient(int id)

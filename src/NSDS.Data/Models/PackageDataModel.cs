@@ -31,6 +31,9 @@ namespace NSDS.Data.Models
 		[ForeignKey("DeploymentId")]
 		public DeploymentDataModel Deployment { get; set; }
 
+		[Required]
+		public string PathQuery { get; set; }
+
 		internal Package ToPackage()
 		{
 			return new Package
@@ -39,7 +42,11 @@ namespace NSDS.Data.Models
 				Deployment = this.Deployment?.ToDeployment(),
 				Module = this.Module?.ToModule(),
 				Name = this.Name,
-				Url = this.Url,
+				Endpoint = new VersionResource
+				{
+					Url = this.Url,
+					PathQuery = this.PathQuery,
+				},
 				Version = this.Version,
 			};
 		}

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using NSDS.Core;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
@@ -23,18 +25,35 @@ namespace NSDS.Data.Services
 		public Package GetPackage(string name)
 		{
 			return this.context.Packages
-				.Include(x => x.Module).ThenInclude(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
-				.Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.Include("Module.Deployment.DeploymentCommands.Command")
+				.Include("Deployment.DeploymentCommands.Command")
 				.SingleOrDefault(x => x.Name == name)?.ToPackage();
 		}
 
 		public IEnumerable<Package> GetPackages()
 		{
 			return this.context.Packages
-				.Include(x => x.Module).ThenInclude(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
-				.Include(x => x.Deployment).ThenInclude(x => x.DeploymentCommands)
+				.Include("Module.Deployment.DeploymentCommands.Command")
+				.Include("Deployment.DeploymentCommands.Command")
 				.Select(x => x.ToPackage())
 				.AsEnumerable();
+		}
+
+		public bool UpdateVersion(string name, BaseVersion version)
+		{
+			var package = this.context.Packages.SingleOrDefault(x => x.Name == name);
+			if (package == null)
+			{
+				return false;
+			}
+			var existing = this.context.Versions.SingleOrDefault(x => x.Version == version.Version);
+			if (existing == null)
+			{
+				existing = this.context.Versions.Add(version).Entity;
+			}
+			package.Version = existing;
+			this.context.SaveChanges();
+			return true;
 		}
 	}
 }

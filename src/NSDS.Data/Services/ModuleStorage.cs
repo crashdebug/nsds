@@ -26,9 +26,9 @@ namespace NSDS.Data.Services
 			return dbClient.ClientModules.Select(x => x.Module.ToModule()).AsEnumerable().ToArray();
 		}
 
-		public Module GetModule(int moduleId)
+		public Module GetModule(string name)
 		{
-			return this.context.Modules.SingleOrDefault(x => x.Id == moduleId)?.ToModule();
+			return this.context.Modules.SingleOrDefault(x => x.Name == name)?.ToModule();
 		}
 	}
 }

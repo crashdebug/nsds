@@ -96,6 +96,7 @@ namespace NSDS.Data.Migrations
                     DeploymentId = table.Column<int>(nullable: true),
                     Endpoint = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
+                    PathQuery = table.Column<string>(nullable: false),
                     VersionId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -148,6 +149,7 @@ namespace NSDS.Data.Migrations
                     DeploymentId = table.Column<int>(nullable: true),
                     ModuleId = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: false),
+                    PathQuery = table.Column<string>(nullable: false),
                     Url = table.Column<string>(nullable: true),
                     VersionId = table.Column<string>(nullable: true)
                 },

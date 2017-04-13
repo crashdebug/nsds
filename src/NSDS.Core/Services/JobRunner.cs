@@ -19,7 +19,7 @@ namespace NSDS.Core.Services
 		public void Start()
 		{
 			this.token = new CancellationTokenSource();
-			Task.Run(new Action(this.Run), this.token.Token);
+			Task.Run(new Action(this.RunAsync), this.token.Token);
 		}
 
 		public void Stop()
@@ -27,7 +27,7 @@ namespace NSDS.Core.Services
 			this.token.Cancel();
 		}
 
-		private void Run()
+		private async void RunAsync()
 		{
 			while (!this.token.IsCancellationRequested)
 			{
@@ -35,7 +35,7 @@ namespace NSDS.Core.Services
 				{
 					job.Run();
 				}
-				Task.Delay(100);
+				await Task.Delay(100);
 			}
 		}
 	}

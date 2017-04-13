@@ -20,7 +20,7 @@ namespace NSDS.Tests
 			Module module = new ModuleModel
 			{
 				Name = "test_module",
-				Endpoint = "http://{0}/test",
+				Endpoint = new VersionResource { Url = "http://{0}/test" },
 				Version = new NumericVersion(0, 7),
 			};
 			Client client = new ClientModel
@@ -37,17 +37,14 @@ namespace NSDS.Tests
 				Commands = new Command[] { command }
 			};
 			var eventService = new EventService();
-			IDeploymentService service = new DeploymentService(eventService);
+			var versionConsumer = new VersionResolver { new DateVersion() };
+			IDeploymentService service = new DeploymentService(eventService, new ConnectionFactory(), versionConsumer);
 
-			var result = await service.Deploy(deployment, new DeploymentArguments
-			{
-				Client = client,
-				Module = module,
-			});
+			var result = await service.Deploy(client, module);
 
-			Assert.AreEqual(1, result.Count());
+			Assert.AreEqual(1, result.CommandResults.Count());
 			Assert.IsTrue(command.Executed);
-			Assert.IsTrue(result.All(x => x.Success));
+			Assert.IsTrue(result.Success);
 		}
 	}
 

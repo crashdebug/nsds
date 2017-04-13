@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NSDS.Core;
 using NSDS.Core.Commands;
 using NSDS.Core.Models;
+using NSDS.Data.Configuration;
 using NSDS.Data.Models;
 
 namespace NSDS.Data
@@ -14,6 +15,7 @@ namespace NSDS.Data
 		public ApplicationDbContext(DbContextOptions context) :
 			base(context)
 		{
+			AutoMapperConfig.Configure();
 		}
 
 		protected override void OnModelCreating(ModelBuilder builder)
@@ -25,6 +27,7 @@ namespace NSDS.Data
 
 			builder.Entity<BaseVersion>().ToTable("Versions").HasKey(v => v.Version);
 			builder.Entity<DateVersion>();
+			builder.Entity<NumericVersion>();
 
 			builder.Entity<ClientModuleDataModel>().HasKey(x => new { x.ClientId, x.ModuleId });
 			builder.Entity<ClientModuleDataModel>().HasOne(x => x.Module).WithMany().HasForeignKey("ModuleId");
@@ -44,6 +47,7 @@ namespace NSDS.Data
 				{
 					Name = "www",
 					Endpoint = "/api/version",
+					PathQuery = "/root/version",
 				}).Entity;
 				this.SaveChanges();
 			}
@@ -70,7 +74,7 @@ namespace NSDS.Data
 				{
 					Name = "build",
 					Created = DateTime.UtcNow,
-					Commands = new List<Command> { new ShellCommand("dotnet", "build") }
+					Commands = new List<Command> { new ShellCommand("dotnet", @"pack NSDS.Web.csproj -o wwwroot\pkg") }
 				}).Entity;
 				this.SaveChanges();
 			}
@@ -84,6 +88,8 @@ namespace NSDS.Data
 					Created = DateTime.UtcNow,
 					Module = module,
 					Deployment = build,
+					Url = "http://localhost:5000/api/version/latest/package",
+					PathQuery = "/root/version"
 				}).Entity;
 				this.SaveChanges();
 			}
@@ -224,7 +230,7 @@ namespace NSDS.Data
 			}*/
 		}
 
-        public DbSet<PoolDataModel> Pools { get; set; }
+		public DbSet<PoolDataModel> Pools { get; set; }
 		public DbSet<ClientDataModel> Clients { get; set; }
 		public DbSet<ModuleDataModel> Modules { get; set; }
 		public DbSet<ClientModuleDataModel> ClientModules { get; set; }

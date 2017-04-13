@@ -8,7 +8,7 @@ namespace NSDS.Core.Models
 		public string Name { get; set; }
 
 		[JsonProperty("endpoint")]
-		public string Endpoint { get; set; }
+		public VersionResource Endpoint { get; set; }
 
 		[JsonProperty("version")]
 		public BaseVersion Version { get; set; }

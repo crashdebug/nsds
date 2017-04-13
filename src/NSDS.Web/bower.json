@@ -1,13 +1,18 @@
 {
-  "name": "webapplication",
+  "name": "nsds",
   "private": true,
   "dependencies": {
-    "bootstrap": "3.3.6",
-    "jquery": "2.2.3",
-    "jquery-validation": "1.15.0",
+    "bootstrap": "v3.3.7",
+    "jquery": "3.2.1",
+    "jquery-validation": "1.16.0",
     "jquery-validation-unobtrusive": "3.2.6",
-    "angular": "^1.6.2",
+    "angular": "v1.6.4",
     "underscore": "^1.8.3",
     "spin.js": "^2.3.2"
+  },
+  "resolutions": {
+    "bootstrap": "v3.3.7",
+    "jquery-validation": "1.16.0",
+    "jquery": "3.2.1"
   }
 }

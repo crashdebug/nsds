@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace NSDS.Core
@@ -13,9 +14,30 @@ namespace NSDS.Core
 		public DateTime Created { get; set; }
 
 		public abstract int CompareTo(BaseVersion other);
+
+		protected BaseVersion()
+		{
+			this.Created = DateTime.UtcNow;
+		}
 	}
 
-	public class DateVersion : BaseVersion
+	public class VersionResource
+	{
+		[JsonProperty("url")]
+		public string Url { get; set; }
+
+		[JsonProperty("pathQuery")]
+		public string PathQuery { get; set; }
+	}
+
+	public interface IVersionParser
+	{
+		Regex Pattern { get; }
+
+		BaseVersion Parse(string input);
+	}
+
+	public class DateVersion : BaseVersion, IVersionParser
 	{
 		private DateTime dateTime;
 
@@ -29,6 +51,9 @@ namespace NSDS.Core
 			}
 		}
 
+		private static Regex _pattern = new Regex(@"\d{4}-\d{2}-\d{2}(Z|\s+)(\d{2}:\d{2}:\d{2}(\.\d+)?)?", RegexOptions.Compiled | RegexOptions.Singleline);
+		public Regex Pattern => _pattern;
+
 		public DateVersion()
 		{
 		}
@@ -40,17 +65,39 @@ namespace NSDS.Core
 
 		public override int CompareTo(BaseVersion other)
 		{
+			if (other == null)
+			{
+				return 1;
+			}
 			if (other is DateVersion)
 			{
 				return DateTime.Compare(this.dateTime, ((DateVersion)other).dateTime);
 			}
 			throw new ArgumentException($"Cannot compare types of {typeof(DateVersion).FullName} and {other.GetType().FullName}");
 		}
+
+		public BaseVersion Parse(string input)
+		{
+			return new DateVersion(input);
+		}
 	}
 
-	public class NumericVersion : BaseVersion
+	public class NumericVersion : BaseVersion, IVersionParser
 	{
+		private static Regex _pattern = new Regex(@"\d+(\.\d+){1,3}", RegexOptions.Compiled | RegexOptions.Singleline);
+		public Regex Pattern => _pattern;
+
 		private Version version;
+
+		public override string Version
+		{
+			get => this.version.ToString();
+			set => this.version = new Version(value);
+		}
+
+		public NumericVersion()
+		{
+		}
 
 		public NumericVersion(string version)
 		{
@@ -64,6 +111,10 @@ namespace NSDS.Core
 
 		public override int CompareTo(BaseVersion other)
 		{
+			if (other == null)
+			{
+				return 1;
+			}
 			if (other is NumericVersion)
 			{
 				var numVersion = other as NumericVersion;
@@ -78,6 +129,11 @@ namespace NSDS.Core
 				return 0;
 			}
 			throw new ArgumentException($"Cannot compare types of {typeof(NumericVersion).FullName} and {other.GetType().FullName}");
+		}
+
+		public BaseVersion Parse(string input)
+		{
+			return new NumericVersion(input);
 		}
 	}
 }

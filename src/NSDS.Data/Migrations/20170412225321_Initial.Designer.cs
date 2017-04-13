@@ -8,7 +8,7 @@ using NSDS.Data;
 namespace NSDS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170402222520_Initial")]
+    [Migration("20170412225321_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,6 +133,9 @@ namespace NSDS.Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired();
 
+                    b.Property<string>("PathQuery")
+                        .IsRequired();
+
                     b.Property<string>("VersionId");
 
                     b.HasKey("Id");
@@ -156,6 +159,9 @@ namespace NSDS.Data.Migrations
                     b.Property<int>("ModuleId");
 
                     b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.Property<string>("PathQuery")
                         .IsRequired();
 
                     b.Property<string>("Url");
@@ -196,6 +202,16 @@ namespace NSDS.Data.Migrations
                     b.ToTable("DateVersion");
 
                     b.HasDiscriminator().HasValue("DateVersion");
+                });
+
+            modelBuilder.Entity("NSDS.Core.NumericVersion", b =>
+                {
+                    b.HasBaseType("NSDS.Core.BaseVersion");
+
+
+                    b.ToTable("NumericVersion");
+
+                    b.HasDiscriminator().HasValue("NumericVersion");
                 });
 
             modelBuilder.Entity("NSDS.Data.Models.ClientDataModel", b =>

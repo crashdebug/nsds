@@ -1,33 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NSDS.Core;
 using NSDS.Core.Extensions;
 using NSDS.Core.Interfaces;
+using NSDS.Web.Models;
 
 namespace NSDS.Web.Areas.api.Controllers
 {
 	[Produces("application/json")]
-    [Route("api/deploy")]
-    public class DeploymentsController : Controller
-    {
+	[Route("api/deploy")]
+	public class DeploymentsController : Controller
+	{
 		private readonly IDeploymentStorage deploymentStorage;
 		private readonly IClientsStorage clientStorage;
 		private readonly IModuleStorage moduleStorage;
 		private readonly IDeploymentService deploymentService;
 		private readonly IPackageStorage packageStorage;
+		private readonly IEventService eventService;
+		private readonly ConnectionFactory connectionFactory;
 
-		public DeploymentsController(IDeploymentStorage deploymentStorage, IClientsStorage clientStorage, IModuleStorage moduleStorage, IDeploymentService deploymentService, IPackageStorage packageStorage)
+		public DeploymentsController(IDeploymentStorage deploymentStorage, IClientsStorage clientStorage, IModuleStorage moduleStorage, IDeploymentService deploymentService, IPackageStorage packageStorage, IEventService eventService, ConnectionFactory connectionFactory)
 		{
 			this.deploymentStorage = deploymentStorage;
 			this.clientStorage = clientStorage;
 			this.moduleStorage = moduleStorage;
 			this.deploymentService = deploymentService;
 			this.packageStorage = packageStorage;
+			this.eventService = eventService;
+			this.connectionFactory = connectionFactory;
 		}
 
 		[Route(""), HttpGet]
@@ -37,67 +44,77 @@ namespace NSDS.Web.Areas.api.Controllers
 		}
 
 		[Produces("text/plain")]
-		[Route("package/{name}/{packageName}"), HttpGet]
-		public Task ExecutePackageDeploymentAsync(string name, string packageName)
+		[Route("package/{name}"), HttpGet]
+		public Task DeployPackage(string name)
 		{
 			return Task.Run(async () =>
 			{
-				var deployment = this.deploymentStorage.GetDeployment(name);
+				/*var deployment = this.deploymentStorage.GetDeployment(name);
 				if (deployment == null)
 				{
 					this.Error(400, $"Deployment with name '{name}' not found");
 					return;
-				}
-				var package = this.packageStorage.GetPackage(packageName);
+				}*/
+				var package = this.packageStorage.GetPackage(name);
 				if (package == null)
 				{
-					this.Error(400, $"Package with id {packageName} not found");
+					this.Error(400, $"Package with name '{name}' not found");
 					return;
 				}
-				var logger = new ResponseLogger(this.Response.Body);
-				await this.deploymentService.Deploy(deployment, new DeploymentArguments
-				{
-					Package = package,
-					Environment = new Dictionary<string, object>
+
+				var logger = new MemoryLogger();
+
+				var result = await this.deploymentService.Deploy(package, new Dictionary<string, object>
 					{
 						{ "workingDir", Directory.GetCurrentDirectory() },
 						{ "date", DateTime.UtcNow },
 						{ "deployment", name },
-					}
-				}, logger);
+					}, logger);
+
+				if (result.Version != null && result.Version.CompareTo(package.Version) != 0)
+				{
+					this.packageStorage.UpdateVersion(package.Name, result.Version);
+				}
+
+				var model = new DeploymentResultModel
+				{
+					Output = logger.ToArray(),
+					Results = result,
+				};
+
+				using (StreamWriter writer = new StreamWriter(this.Response.Body, Encoding.UTF8, 1024, true) { AutoFlush = true })
+				{
+					writer.Write(JsonConvert.SerializeObject(model));
+				}
 			});
 		}
 
 		[Route("module/{name}"), HttpGet]
-		public async Task<IActionResult> ExecuteModuleDeploymentAsync(string name, int moduleId, int[] clientIds)
+		public async Task<IActionResult> ExecuteModuleDeploymentAsync(string name, int[] clientIds)
 		{
-			var deployment = this.deploymentStorage.GetDeployment(name);
+			/*var deployment = this.deploymentStorage.GetDeployment(name);
 			if (deployment == null)
 			{
 				return BadRequest($"Deployment with name '{name}' not found");
-			}
-			var module = this.moduleStorage.GetModule(moduleId);
+			}*/
+			var module = this.moduleStorage.GetModule(name);
 			if (module == null)
 			{
-				return BadRequest($"Module with id {moduleId} not found");
+				return BadRequest($"Module with name '{name}' not found");
 			}
-			List<Task<IEnumerable<CommandResult>>> tasks = new List<Task<IEnumerable<CommandResult>>>();
+			List<Task<DeploymentResult>> tasks = new List<Task<DeploymentResult>>();
 			foreach (var id in clientIds)
 			{
 				var client = this.clientStorage.GetClient(id);
 				if (client != null)
 				{
-					var task = this.deploymentService.Deploy(deployment, new DeploymentArguments
-					{
-						Client = client,
-						Module = module,
-						Environment = new Dictionary<string, object>
+					var task = this.deploymentService.Deploy(client, module, new Dictionary<string, object>
 						{
 							{ "workingDir", Directory.GetCurrentDirectory() },
 							{ "date", DateTime.UtcNow },
-							{ "deployment", name },
-						}
-					});
+							{ "client", client },
+							{ "module", module },
+						});
 					tasks.Add(task);
 				}
 			}
@@ -124,21 +141,43 @@ namespace NSDS.Web.Areas.api.Controllers
 		}
 	}
 
-	class ResponseLogger : ILogger
+	class MemoryLogger : ILogger
 	{
-		private Stack<Scope> stack = new Stack<Scope>();
-		private readonly StreamWriter stream;
-
-		public ResponseLogger(Stream body)
+		private class LogEntry
 		{
-			this.stream = new StreamWriter(body);
+			[JsonProperty("message")]
+			public string Message { get; internal set; }
+			[JsonProperty("level")]
+			public LogLevel Level { get; internal set; }
+			[JsonProperty("eventId")]
+			public EventId EventId { get; internal set; }
 		}
+
+		private class Scope : IDisposable
+		{
+			[JsonProperty("data")]
+			public readonly List<LogEntry> Data = new List<LogEntry>();
+			[JsonProperty("state")]
+			public readonly object State;
+
+			public Scope(object state)
+			{
+				this.State = state;
+			}
+
+			public void Dispose()
+			{
+			}
+		}
+
+		private readonly List<Scope> Commands = new List<Scope>();
+		private Scope currentScope;
 
 		public IDisposable BeginScope<TState>(TState state)
 		{
-			Scope scope = new Scope(state);
-			this.stack.Push(scope);
-			return scope;
+			this.currentScope = new Scope(state);
+			this.Commands.Add(this.currentScope);
+			return this.currentScope;
 		}
 
 		public bool IsEnabled(LogLevel logLevel)
@@ -148,21 +187,17 @@ namespace NSDS.Web.Areas.api.Controllers
 
 		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
-			this.stream.WriteLine(formatter(state, exception));
+			this.currentScope.Data.Add(new LogEntry
+			{
+				Message = formatter(state, exception),
+				Level = logLevel,
+				EventId = eventId,
+			});
 		}
 
-		private class Scope : IDisposable
+		public IEnumerable<object> ToArray()
 		{
-			private object state;
-
-			public Scope(object state)
-			{
-				this.state = state;
-			}
-
-			public void Dispose()
-			{
-			}
+			return this.Commands;
 		}
 	}
 }

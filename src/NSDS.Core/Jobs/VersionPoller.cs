@@ -34,12 +34,12 @@ namespace NSDS.Core.Jobs
 				{
 					try
 					{
-						var uri = client.GetEndpointUri(module.Endpoint);
+						var uri = client.GetEndpointUri(module.Endpoint.Url);
 						var conn = this.connectionFactory.CreateConnection(uri);
 						using (var stream = new StreamReader(await conn.GetStream()))
 						{
 							var version = JsonConvert.DeserializeObject(stream.ReadToEnd());
-							this.eventService.Invoke("ModuleVersionReceived", client, module, version);
+							this.eventService.Invoke(Constants.Events.ModuleVersionReceived, client, module, version);
 						}
 					}
 					catch (Exception ex)

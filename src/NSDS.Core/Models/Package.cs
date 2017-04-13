@@ -14,11 +14,11 @@ namespace NSDS.Core.Models
 		[JsonProperty("version")]
 		public BaseVersion Version { get; set; }
 
-		[JsonProperty("url")]
-		public string Url { get; set; }
+		[JsonProperty("versionResource")]
+		public VersionResource Endpoint { get; set; }
 
 		[JsonProperty("module")]
-		public virtual Module Module { get; set; }
+		public Module Module { get; set; }
 
 		[JsonProperty("deployment")]
 		public Deployment Deployment { get; set; }

@@ -1,19 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSDS.Core;
-using NSDS.Core.Consumers;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Jobs;
 using NSDS.Core.Models;
+using NSDS.Core.Services;
 
 namespace NSDS.Tests
 {
 	[TestClass]
 	public class VersionConsumerTests
 	{
+		[TestMethod]
+		public void PackageVersionTest()
+		{
+			var factory = new ConnectionFactory();
+			var conn = new TestConnection(@"{
+			  ""version"": ""0.1.0"",
+			  ""created"": ""2017-04-07T23:09:30.5972588Z"",
+			  ""name"": ""NSDS.Web.0.1.0.nupkg""
+			}");
+			factory.Add("http", uri => conn);
+
+			var package = new Package
+			{
+				Deployment = new Deployment
+				{
+					Commands = new Command[0],
+					Name = "test"
+				},
+				Module = new Module
+				{
+					Name = "test",
+				},
+				Endpoint = new VersionResource
+				{
+					Url = "http://localhost",
+					PathQuery = "/root/version"
+				}
+			};
+
+			var eventService = new EventService();
+			var consumer = new VersionResolver { new NumericVersion() };
+
+			eventService.Register(Constants.Events.PackageVersionReceived, args =>
+			{
+			});
+
+			var deploymentService = new DeploymentService(eventService, factory, consumer);
+			var result = deploymentService.Deploy(package).Result;
+		}
+
 		[TestMethod]
 		public void CartVersionTest()
 		{
@@ -48,18 +90,36 @@ namespace NSDS.Tests
 						new ModuleModel
 						{
 							Name = "ui",
-							Endpoint = "http://{0}:8000/cart/git"
+							Endpoint = new VersionResource { Url = "http://{0}:8000/cart/git" }
 						}
 					})
 				}
 			);
 
 			var eventService = new EventService();
-			eventService.Register("VersionReceived", new VersionConsumer(eventService).CheckVersion);
+			eventService.Register(Constants.Events.ModuleVersionReceived, args =>
+			{
+			});
 
 			var poller = new VersionPoller(clientService, clientService, factory, eventService);
 			poller.Run();
 			Assert.IsTrue(poller.Status == JobStatus.Success);
+		}
+
+		private class TestVersionParser<T> : IVersionParser where T : BaseVersion
+		{
+			private readonly Regex pattern;
+			public Regex Pattern => this.pattern;
+
+			public TestVersionParser(string pattern)
+			{
+				this.pattern = new Regex(pattern, RegexOptions.Compiled);
+			}
+
+			public BaseVersion Parse(string input)
+			{
+				return Activator.CreateInstance(typeof(T), input) as BaseVersion;
+			}
 		}
 	}
 

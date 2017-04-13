@@ -55,10 +55,11 @@ namespace NSDS.Web
 			services.AddTransient<IDeploymentService, DeploymentService>();
 
 			services.AddSingleton<IEventService>(new EventService());
-
-			services.AddSingleton(typeof(JobRunner));
+			services.AddSingleton(new VersionResolver { new DateVersion(), new NumericVersion() });
 
 			services.AddSingleton(new ConnectionFactory().Add("http", uri => new HttpConnection(uri)));
+
+			services.AddSingleton(typeof(JobRunner));
 
 			services.RegisterTypes(typeof(JobBase), Assembly.Load(new AssemblyName("NSDS.Core")));
 
@@ -101,7 +102,7 @@ namespace NSDS.Web
 				context.Seed();
 			}
 
-            services.GetService<JobRunner>().Start();
+            services.GetService<JobRunner>()?.Start();
         }
     }
 }

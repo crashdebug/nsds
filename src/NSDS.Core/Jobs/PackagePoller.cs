@@ -25,16 +25,16 @@ namespace NSDS.Core.Jobs
 			{
 				try
 				{
-					var conn = this.connectionFactory.CreateConnection(new Uri(package.Url));
+					var conn = this.connectionFactory.CreateConnection(new Uri(package.Endpoint.Url));
 					using (var stream = new StreamReader(await conn.GetStream()))
 					{
 						var version = JsonConvert.DeserializeObject(stream.ReadToEnd());
-						this.eventService.Invoke("PackageVersionReceived", package, version);
+						this.eventService.Invoke(Constants.Events.PackageVersionReceived, package, version);
 					}
 				}
 				catch (Exception ex)
 				{
-					this.Log.LogError("Could not get version for package '{0}':\n{1}", package.Url, ex.ToString());
+					this.Log.LogError("Could not get version for package '{0}':\n{1}", package.Endpoint.Url, ex.ToString());
 				}
 			}
 		}
