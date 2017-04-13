@@ -24,12 +24,26 @@ body {
 
 .package {
 	border: 2px solid #eee;
-	border-radius: 8px;
+	/*border-left: 24px solid #69c;*/
+	border-radius: 4px;
 	display: inline-block;
 	min-width: 100px;
-	min-height: 100px;
+	/*min-height: 100px;*/
 	margin: 20px;
 	vertical-align: top;
+	/*padding: 4px;
+	padding-right: 12px;*/
+}
+
+.package .title {
+	background-color: #69c;
+	border-radius: 4px 4px 0 0;
+	color: #fff;
+	padding: 4px;
+}
+
+.package .content {
+	padding: 8px;
 }
 
 .pool {

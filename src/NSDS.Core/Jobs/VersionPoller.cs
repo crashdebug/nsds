@@ -34,8 +34,8 @@ namespace NSDS.Core.Jobs
 				{
 					try
 					{
-						var uri = client.GetEndpointUri(module.Endpoint.Url);
-						var conn = this.connectionFactory.CreateConnection(uri);
+						var uri = client.GetEndpointUri(module.Endpoint);
+						var conn = this.connectionFactory.CreateConnection(new Uri(uri.Url));
 						using (var stream = new StreamReader(await conn.GetStream()))
 						{
 							var version = JsonConvert.DeserializeObject(stream.ReadToEnd());

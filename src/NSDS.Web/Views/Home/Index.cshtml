@@ -28,10 +28,17 @@
 
 <div ng-controller="PackagesController">
 	<div class="package" ng-repeat="package in packages">
-		<strong>{{ package.module.name }}</strong><br/>
-		<span class="version">{{ package.version }}</span><br/>
-		<a ng-if="package.deployment" ng-click="deploy(package)" href="#">{{ package.deployment.name }}</a><span id="{{ package.$$hashKey.replace(':', '_') }}"></span><br/>
-		@*<a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a>*@
+		<div class="title">
+			@*<span class="glyphicon glyphicon-gift"></span>*@
+			<strong>{{ package.module.name }}</strong>
+			<span class="version" ng-if="package.version">{{ package.version.version }}</span><br />
+		</div>
+		<div class="content" ng-if="package.deployment">
+			<strong>Deploy:</strong>
+			<a ng-click="deploy(package)" href="#">{{ package.deployment.name }}</a>
+			<span id="{{ package.$$hashKey.replace(':', '_') }}"></span>
+		</div>
+		@*<div><a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a></div>*@
 	</div>
 </div>
 <div ng-controller="PoolsController">

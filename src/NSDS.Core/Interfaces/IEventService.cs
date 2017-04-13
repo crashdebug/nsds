@@ -16,6 +16,10 @@ namespace NSDS.Core.Interfaces
 
         public void Invoke(string eventName, params object[] args)
         {
+			if (!this.handlers.ContainsKey(eventName))
+			{
+				return;
+			}
 			foreach (var e in this.handlers[eventName])
 			{
 				e.Invoke(args);

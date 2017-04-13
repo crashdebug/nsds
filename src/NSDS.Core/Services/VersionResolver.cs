@@ -23,6 +23,10 @@ namespace NSDS.Core.Services
 
 		public BaseVersion CheckVersion(XmlDocument doc, string q)
 		{
+			if (string.IsNullOrWhiteSpace(q))
+			{
+				return null;
+			}
 			var arr = doc.SelectNodes(q);
 			if (arr.Count == 0)
 			{

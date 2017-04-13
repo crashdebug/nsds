@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSDS.Core;
 using NSDS.Core.Interfaces;
@@ -16,46 +13,6 @@ namespace NSDS.Tests
 	[TestClass]
 	public class VersionConsumerTests
 	{
-		[TestMethod]
-		public void PackageVersionTest()
-		{
-			var factory = new ConnectionFactory();
-			var conn = new TestConnection(@"{
-			  ""version"": ""0.1.0"",
-			  ""created"": ""2017-04-07T23:09:30.5972588Z"",
-			  ""name"": ""NSDS.Web.0.1.0.nupkg""
-			}");
-			factory.Add("http", uri => conn);
-
-			var package = new Package
-			{
-				Deployment = new Deployment
-				{
-					Commands = new Command[0],
-					Name = "test"
-				},
-				Module = new Module
-				{
-					Name = "test",
-				},
-				Endpoint = new VersionResource
-				{
-					Url = "http://localhost",
-					PathQuery = "/root/version"
-				}
-			};
-
-			var eventService = new EventService();
-			var consumer = new VersionResolver { new NumericVersion() };
-
-			eventService.Register(Constants.Events.PackageVersionReceived, args =>
-			{
-			});
-
-			var deploymentService = new DeploymentService(eventService, factory, consumer);
-			var result = deploymentService.Deploy(package).Result;
-		}
-
 		[TestMethod]
 		public void CartVersionTest()
 		{
@@ -120,25 +77,6 @@ namespace NSDS.Tests
 			{
 				return Activator.CreateInstance(typeof(T), input) as BaseVersion;
 			}
-		}
-	}
-
-	public class TestConnection : IConnection
-	{
-		private readonly string content;
-
-		public TestConnection(string content)
-		{
-			this.content = content;
-		}
-
-		public void Dispose()
-		{
-		}
-
-		public Task<Stream> GetStream()
-		{
-			return Task.Run<Stream>(() => new MemoryStream(Encoding.UTF8.GetBytes(this.content)));
 		}
 	}
 }

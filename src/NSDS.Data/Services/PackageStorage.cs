@@ -27,6 +27,7 @@ namespace NSDS.Data.Services
 			return this.context.Packages
 				.Include("Module.Deployment.DeploymentCommands.Command")
 				.Include("Deployment.DeploymentCommands.Command")
+				.Include("Version")
 				.SingleOrDefault(x => x.Name == name)?.ToPackage();
 		}
 
@@ -35,6 +36,7 @@ namespace NSDS.Data.Services
 			return this.context.Packages
 				.Include("Module.Deployment.DeploymentCommands.Command")
 				.Include("Deployment.DeploymentCommands.Command")
+				.Include("Version")
 				.Select(x => x.ToPackage())
 				.AsEnumerable();
 		}

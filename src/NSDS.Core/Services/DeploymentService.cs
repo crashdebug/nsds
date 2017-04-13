@@ -30,6 +30,10 @@ namespace NSDS.Core.Services
 				Environment = environment,
 			}, logger);
 			result.Version = await GetVersion(package.Endpoint, result);
+			if (result.Version != null && result.Version.CompareTo(package.Version) != 0)
+			{
+				this.eventService.Invoke(Constants.Events.PackageVersionReceived, package, result.Version);
+			}
 			return result;
 		}
 
@@ -41,7 +45,11 @@ namespace NSDS.Core.Services
 				Module = module,
 				Environment = environment,
 			}, logger);
-			result.Version = await GetVersion(module.Endpoint, result);
+			result.Version = await GetVersion(client.GetEndpointUri(module.Endpoint), result);
+			if (result.Version != null && result.Version.CompareTo(module.Version) != 0)
+			{
+				this.eventService.Invoke(Constants.Events.PackageVersionReceived, client, module, result.Version);
+			}
 			return result;
 		}
 

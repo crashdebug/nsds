@@ -21,9 +21,13 @@ namespace NSDS.Core.Models
 		[JsonProperty("modules")]
 		public IEnumerable<Module> Modules { get; set; }
 
-		public Uri GetEndpointUri(string endpoint)
+		public VersionResource GetEndpointUri(VersionResource endpoint)
 		{
-			return new Uri(string.Format(endpoint, this.Address));
+			return new VersionResource
+			{
+				Url = string.Format(endpoint.Url, this.Address),
+				PathQuery = endpoint.PathQuery,
+			};
 		}
 	}
 }
