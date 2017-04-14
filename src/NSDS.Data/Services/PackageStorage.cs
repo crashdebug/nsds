@@ -31,7 +31,7 @@ namespace NSDS.Data.Services
 					.Include("Module.Deployment.DeploymentCommands.Command")
 					.Include("Deployment.DeploymentCommands.Command")
 					.Include("Version")
-					.SingleOrDefault(x => x.Name == name)?.ToPackage();
+					.SingleOrDefault(x => x.Name == name)?.ToPackage(new MappingContext());
 			}
 		}
 
@@ -39,11 +39,12 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
+				var mappingContext = new MappingContext();
 				return context.Packages
 					.Include("Module.Deployment.DeploymentCommands.Command")
 					.Include("Deployment.DeploymentCommands.Command")
 					.Include("Version")
-					.Select(x => x.ToPackage())
+					.Select(x => x.ToPackage(mappingContext))
 					.ToArray();
 			}
 		}

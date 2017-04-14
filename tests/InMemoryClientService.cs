@@ -74,15 +74,20 @@ namespace NSDS.Tests
 			return this.modules.Single(x => x.Name == name);
 		}
 
-		public Client GetClient(int id)
+		public Client GetClient(string name)
 		{
-			return this.clients.Single(x => x.Id == id);
+			return this.clients.Single(x => x.Name == name);
 		}
 
 		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
 		{
 			client.Modules.Single(x => x.Module == module).Version = version;
 			return true;
+		}
+
+		public ClientModule GetClientModule(string clientName, string moduleName)
+		{
+			return this.clients.Where(x => x.Name == clientName).Single().Modules.Where(x => x.Module.Name == moduleName).Single();
 		}
 	}
 }

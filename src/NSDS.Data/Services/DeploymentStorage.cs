@@ -27,7 +27,7 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return context.Deployments.Include("DeploymentCommands.Command").Single(x => x.Name == name).ToDeployment();
+				return context.Deployments.Include("DeploymentCommands.Command").Single(x => x.Name == name).ToDeployment(new MappingContext());
 			}
 		}
 
@@ -49,7 +49,8 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return this.GetSelectDeployments(context).Select(x => x.ToDeployment()).ToArray();
+				var mappingContext = new MappingContext();
+				return this.GetSelectDeployments(context).Select(x => x.ToDeployment(mappingContext)).ToArray();
 			}
 		}
 	}

@@ -9,6 +9,6 @@ namespace NSDS.Core.Models
 		[JsonProperty("version")]
 		public BaseVersion Version { get; set; }
 		[JsonProperty("isLatest")]
-		public bool IsLatest { get => this.Version != null && this.Version.CompareTo(this.Module.Package.Version) <= 0; }
+		public bool IsLatest { get => this.Version != null && this.Version.CompareTo(this.Module.Package?.Version) <= 0; }
     }
 }

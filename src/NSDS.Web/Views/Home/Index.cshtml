@@ -46,7 +46,7 @@
 <hr/>
 
 <div ng-controller="DeploymentController">
-	<button ng-disabled="!canDeploy">Deploy ({{ selectedItems.length }})</button>
+	<button class="btn btn-default" ng-class="{'disabled': !canDeploy}" ng-disabled="!canDeploy" ng-click="deploy()">Deploy ({{ selectedItems.length }})</button>
 
 	<fieldset ng-controller="PoolsController" title="Clients">
 		<legend>Pools</legend>
@@ -55,14 +55,15 @@
 			<div class="client status-{{ cli.status() }}" ng-repeat="cli in clients" ng-class="{'selected': cli.selected()}">
 				<span class="glyphicon" ng-class="{'glyphicon-unchecked': !cli.selected(), 'glyphicon-check': cli.selected() }" ng-click="cli.select()" style="margin-left: 4px; vertical-align: baseline;"></span>
 				<strong>{{ cli.name }}</strong>
-				<ul class="module-list">
-					<li class="module" ng-repeat="mod in cli.modules">
-						<span class="glyphicon" ng-class="{'glyphicon-unchecked': !mod.selected, 'glyphicon-check': mod.selected}" ng-click="mod.select()"></span>
-						<span class="glyphicon" ng-class="{'glyphicon-ok-circle': mod.isLatest, 'ok': mod.isLatest, 'glyphicon-remove-circle': !mod.isLatest, 'warn': !mod.isLatest}"></span>
-						<span class="name">{{ mod.module.name }}</span>
-						<span class="version">{{ mod.version.version }}</span>
-					</li>
-				</ul>
+				<div class="module-list">
+					<div class="module" ng-repeat="mod in cli.modules" ng-click="mod.select()" ng-class="{'module_ok': mod.isLatest && !mod.isDeploying, 'module_warn': !mod.isLatest && !mod.isDeploying, 'module_deploying': mod.isDeploying}" style="cursor: pointer;">
+						<div class="glyphicon" ng-class="{'glyphicon-unchecked': !mod.selected, 'glyphicon-check': mod.selected}"></div>
+						@*<div ng-if="!mod.isDeploying" class="glyphicon" ng-class="{'glyphicon-ok-circle': mod.isLatest, 'ok': mod.isLatest, 'glyphicon-remove-circle': !mod.isLatest, 'warn': !mod.isLatest}"></div>*@
+						<div class="name">{{ mod.module.name }}</div>
+						<div ng-class="{'hidden': !mod.isDeploying}" id="{{ mod.$$hashKey.replace(':', '_') }}" style="display: inline-block; top: -2px; position: relative; width: 32px; height: 24px; float: right;"></div>
+						<div ng-if="!mod.isDeploying" class="version">{{ mod.version.version }}</div>
+					</div>
+				</div>
 			</div>
 		</fieldset>
 	</fieldset>

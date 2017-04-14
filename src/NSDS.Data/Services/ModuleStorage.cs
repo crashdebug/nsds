@@ -27,7 +27,7 @@ namespace NSDS.Data.Services
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
 				var dbClient = context.Clients.Include("ClientModules.Module").Single(x => x.Id == clientId);
-				return dbClient.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(), Version = x.Version }).ToArray();
+				return dbClient.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(new MappingContext()), Version = x.Version }).ToArray();
 			}
 		}
 
@@ -35,7 +35,7 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return context.Modules.SingleOrDefault(x => x.Name == name).ToModule();
+				return context.Modules.SingleOrDefault(x => x.Name == name).ToModule(new MappingContext());
 			}
 		}
 	}

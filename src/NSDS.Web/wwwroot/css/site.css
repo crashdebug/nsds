@@ -21,6 +21,10 @@ hr {
 	border-color: #999;
 }
 
+.hidden {
+	display: none;
+}
+
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
@@ -28,7 +32,12 @@ hr {
     padding-right: 15px;
 }
 
+.name {
+	display: inline;
+}
+
 .version {
+	display: inline;
 	float: right;
 	margin-left: 8px;
 }
@@ -103,18 +112,34 @@ hr {
 	border-color: #f93;
 }
 
+.status-deploying {
+	border-color: #ccc;
+}
+
 .module-list {
     padding: 4px;
 	margin: 0;
 }
 
 .module {
-    list-style: none;
-}
-
-li.module {
+	margin-left: 4px;
+	border-style: solid;
+	border-width: 1px 1px 1px 4px;
 	border-radius: 2px;
 	padding: 4px;
+	min-width: 160px;
+}
+
+.module_ok {
+	border-color: #6c3;
+}
+
+.module_warn {
+	border-color: #f93;
+}
+
+.module_deploying {
+	border-color: #ccc;
 }
 
 .ok {

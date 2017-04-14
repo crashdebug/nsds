@@ -44,14 +44,14 @@ namespace NSDS.Data.Models
 			}
 		}
 
-		internal Deployment ToDeployment()
+		internal Deployment ToDeployment(MappingContext context)
 		{
-			return new Deployment
-			{
-				Name = this.Name,
-				Created = this.Created,
-				Commands = this.Commands,
-			};
+			return context.Get(this, x => x.Name, () => new Deployment
+				{
+					Name = this.Name,
+					Created = this.Created,
+					Commands = this.Commands,
+				})();
 		}
 
 		public DeploymentDataModel()

@@ -52,7 +52,8 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return context.Pools.Select(x => x.ToPool()).ToArray();
+				var mappingContext = new MappingContext();
+				return context.Pools.Select(x => x.ToPool(mappingContext)).ToArray();
 			}
 		}
 	}

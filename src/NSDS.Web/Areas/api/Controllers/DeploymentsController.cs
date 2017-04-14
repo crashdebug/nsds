@@ -66,7 +66,7 @@ namespace NSDS.Web.Areas.api.Controllers
 				var model = new DeploymentResultModel
 				{
 					Output = logger.ToArray(),
-					Results = result,
+					Result = result,
 				};
 
 				using (StreamWriter writer = new StreamWriter(this.Response.Body, Encoding.UTF8, 1024, true) { AutoFlush = true })
@@ -76,22 +76,38 @@ namespace NSDS.Web.Areas.api.Controllers
 			});
 		}
 
-		[Route("module/{name}"), HttpGet]
-		public async Task<IActionResult> ExecuteModuleDeploymentAsync(string name, int[] clientIds)
+		class AsyncDeploymentResult
 		{
-			List<Task<DeploymentResult>> tasks = new List<Task<DeploymentResult>>();
+			[JsonProperty("result")]
+			public DeploymentResult Result { get; internal set; }
+			[JsonIgnore]
+			public IEnumerable<object> Log { get; internal set; }
+		}
+
+		[Route("module/{name}"), HttpPost]
+		public async Task<IActionResult> ExecuteModuleDeployment(string name, [FromBody] string[] clientIds)
+		{
+			List<Task<AsyncDeploymentResult>> tasks = new List<Task<AsyncDeploymentResult>>();
 			foreach (var id in clientIds)
 			{
 				var client = this.clientStorage.GetClient(id);
 				if (client != null)
 				{
 					var module = client.Modules.First(x => x.Module.Name == name);
+					if (module == null)
+					{
+						continue;
+					}
+					var logger = new MemoryLogger();
 					var task = this.deploymentService.Deploy(client, module, new Dictionary<string, object>
 						{
 							{ "workingDir", Directory.GetCurrentDirectory() },
 							{ "date", DateTime.UtcNow },
 							{ "client", client },
 							{ "module", module.Module },
+						}, logger).ContinueWith(t =>
+						{
+							return new AsyncDeploymentResult { Result = t.Result, Log = logger.ToArray() };
 						});
 					tasks.Add(task);
 				}
@@ -103,7 +119,7 @@ namespace NSDS.Web.Areas.api.Controllers
 					 switch (t.Status)
 					 {
 						 case TaskStatus.RanToCompletion:
-							 return Ok();
+							 return Ok(t.Result.Select(x => new DeploymentResultModel { Result = x.Result, Output = x.Log }).ToArray());
 						 default:
 							 return BadRequest();
 					 }

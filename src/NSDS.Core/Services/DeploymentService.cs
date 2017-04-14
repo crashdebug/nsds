@@ -9,23 +9,26 @@ namespace NSDS.Core.Services
 	public class DeploymentService : IDeploymentService
 	{
 		private readonly IEventService eventService;
+		private readonly IClientsStorage clientService;
 		private readonly ConnectionFactory connectionFactory;
 		private readonly VersionResolver versionConsumer;
 
-		public DeploymentService(IEventService eventService, ConnectionFactory connectionFactory, VersionResolver versionConsumer)
+		public DeploymentService(IEventService eventService, ConnectionFactory connectionFactory, VersionResolver versionConsumer, IClientsStorage clientService = null)
 		{
 			this.eventService = eventService;
+			this.clientService = clientService;
 			this.connectionFactory = connectionFactory;
 			this.versionConsumer = versionConsumer;
 		}
 
 		public async Task<DeploymentResult> Deploy(Package package, IDictionary<string, object> environment = null, ILogger logger = null)
 		{
-			var result = await this.Deploy(package.Deployment, new DeploymentArguments
+			var result = await this.Deploy<PackageDeploymentResult>(package.Deployment, new DeploymentArguments
 			{
 				Package = package,
 				Environment = environment,
 			}, logger);
+			result.Package = package;
 			result.Version = await GetVersion(package.Endpoint, result);
 			if (result.Version != null && result.Version.CompareTo(package.Version) != 0)
 			{
@@ -36,12 +39,15 @@ namespace NSDS.Core.Services
 
 		public async Task<DeploymentResult> Deploy(Client client, ClientModule module, IDictionary<string, object> environment = null, ILogger logger = null)
 		{
-			var result = await this.Deploy(module.Module.Deployment, new DeploymentArguments
+			var result = await this.Deploy<ModuleDeploymentResult>(module.Module.Deployment, new DeploymentArguments
 			{
 				Client = client,
 				Module = module.Module,
 				Environment = environment,
 			}, logger);
+			result.Client = client;
+			result.Module = module.Module;
+			result.ClientModule = this.clientService?.GetClientModule(client.Name, module.Module.Name);
 			result.Version = await GetVersion(client.GetEndpointUri(module.Module.Endpoint), result);
 			if (result.Version != null && result.Version.CompareTo(module.Version) != 0)
 			{
@@ -59,13 +65,13 @@ namespace NSDS.Core.Services
 			return await this.versionConsumer.GetVersion(resource);
 		}
 
-		private async Task<DeploymentResult> Deploy(Deployment deployment, DeploymentArguments args, ILogger logger = null)
+		private async Task<T> Deploy<T>(Deployment deployment, DeploymentArguments args, ILogger logger = null) where T : DeploymentResult, new()
 		{
-			var result = new DeploymentResult();
+			var result = new T();
 			foreach (var command in deployment.Commands)
 			{
 				var cmdResult = new CommandResult { Command = command };
-				using (var scope = logger?.BeginScope(result))
+				using (var scope = logger?.BeginScope(cmdResult))
 				{
 					await command.Execute(args, cmdResult, logger);
 				}

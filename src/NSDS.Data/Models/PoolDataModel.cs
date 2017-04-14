@@ -17,14 +17,14 @@ namespace NSDS.Data.Models
 
 		public virtual ICollection<ClientDataModel> Clients { get; set; }
 
-		internal Pool ToPool()
+		internal Pool ToPool(MappingContext context)
 		{
-			return new Pool
-			{
-				Name = this.Name,
-				Created = this.Created,
-				Clients = this.Clients?.Select(x => x.ToClient()).AsEnumerable(),
-			};
+			return context.Get(this, x => x.Name, () => new Pool
+				{
+					Name = this.Name,
+					Created = this.Created,
+					Clients = this.Clients?.Select(x => x.ToClient(context)).AsEnumerable(),
+				})();
 		}
 	}
 }

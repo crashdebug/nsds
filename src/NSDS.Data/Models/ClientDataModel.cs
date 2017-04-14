@@ -28,16 +28,16 @@ namespace NSDS.Data.Models
 
 		public virtual ICollection<ClientModuleDataModel> ClientModules { get; set; }
 
-		internal Client ToClient()
+		internal Client ToClient(MappingContext context)
 		{
-			return new Client
-			{
-				Address = this.Address,
-				Created = this.Created,
-				Enabled = this.Enabled,
-				Modules = this.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(), Version = x.Version }).AsEnumerable(),
-				Name = this.Name,
-			};
+			return context.Get(this, x => x.Name, () => new Client
+				{
+					Address = this.Address,
+					Created = this.Created,
+					Enabled = this.Enabled,
+					Modules = this.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(context), Version = x.Version }).ToList(),
+					Name = this.Name,
+				})();
 		}
 	}
 }

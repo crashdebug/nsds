@@ -26,19 +26,19 @@ namespace NSDS.Data.Models
 		[Required]
 		public string PathQuery { get; set; }
 
-		internal Module ToModule()
+		internal Module ToModule(MappingContext context)
 		{
-			return new Module
-			{
-				Name = this.Name,
-				Endpoint = new VersionResource
+			return context.Get(this, x => x.Name, () => new Module
 				{
-					Url = this.Endpoint,
-					PathQuery = this.PathQuery
-				},
-				Deployment = this.Deployment?.ToDeployment(),
-				Package = this.Package?.ToPackage(),
-			};
+					Name = this.Name,
+					Endpoint = new VersionResource
+					{
+						Url = this.Endpoint,
+						PathQuery = this.PathQuery
+					},
+					Deployment = this.Deployment?.ToDeployment(context),
+					Package = this.Package?.ToPackage(context),
+				})();
 		}
 	}
 }

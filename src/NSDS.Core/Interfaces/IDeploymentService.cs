@@ -40,4 +40,20 @@ namespace NSDS.Core.Interfaces
 			this.CommandResults.Add(result);
 		}
 	}
+
+	public class ModuleDeploymentResult : DeploymentResult
+	{
+		[JsonProperty("client")]
+		public Client Client { get; internal set; }
+		[JsonProperty("module")]
+		public Module Module { get; internal set; }
+		[JsonProperty("version")]
+		public ClientModule ClientModule { get; internal set; }
+	}
+
+	public class PackageDeploymentResult : DeploymentResult
+	{
+		[JsonProperty("package")]
+		public Package Package { get; set; }
+	}
 }

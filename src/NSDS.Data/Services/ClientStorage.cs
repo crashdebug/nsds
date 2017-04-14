@@ -56,11 +56,22 @@ namespace NSDS.Data.Services
 			}
 		}
 
-		public Client GetClient(int id)
+		private IQueryable<ClientDataModel> SelectClients(ApplicationDbContext context)
+		{
+			return context.Clients
+				.Include("ClientModules.Version")
+				.Include("ClientModules.Module.Package.Version")
+				.Include("ClientModules.Module.Deployment.DeploymentCommands.Command")
+			;
+		}
+
+		public Client GetClient(string name)
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id).ToClient();
+				return this.SelectClients(context)
+					.Single(x => x.Name == name)
+					.ToClient(new MappingContext());
 			}
 		}
 
@@ -68,11 +79,9 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return context.Clients
-					.Include("ClientModules.Version")
-					.Include("ClientModules.Module.Package.Version")
-					.Include("ClientModules.Module.Deployment.DeploymentCommands.Command")
-					.Select(x => x.ToClient())
+				var mappingContext = new MappingContext();
+				return this.SelectClients(context)
+					.Select(x => x.ToClient(mappingContext))
 					.ToList();
 			}
 		}
@@ -91,13 +100,13 @@ namespace NSDS.Data.Services
 		{
 			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
+				var mappingContext = new MappingContext();
 				return context.Clients.Where(c => c.Pool.Id == poolId)
 					.Include(c => c.ClientModules).ThenInclude(m => m.Module)
-					.Select(c => c.ToClient())
+					.Select(c => c.ToClient(mappingContext))
 					.ToArray();
 			}
 		}
-
 
 		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
 		{
@@ -129,6 +138,26 @@ namespace NSDS.Data.Services
 			{
 				this.logger?.LogError("Could not update module '{0}' version for client '{1}' to '{2}':\n{3}", module.Name, client.Name, version.ToString(), ex.ToString());
 				return false;
+			}
+		}
+
+		public ClientModule GetClientModule(string clientName, string moduleName)
+		{
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				var model = context.ClientModules
+					.Include("Client")
+					.Include("Module.Deployment.DeploymentCommands.Command")
+					.Include("Module.Package.Version")
+					.Include("Version")
+					.Where(x => x.Client.Name == clientName && x.Module.Name == moduleName)
+					.SingleOrDefault()
+				;
+				return new ClientModule
+				{
+					Module = model.Module.ToModule(new MappingContext()),
+					Version = model.Version,
+				};
 			}
 		}
 
