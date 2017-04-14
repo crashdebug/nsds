@@ -40,7 +40,7 @@ namespace NSDS.Data.Models
 			{
 				Created = this.Created,
 				Deployment = this.Deployment?.ToDeployment(),
-				Module = this.Module?.ToModule(),
+				Module = this.Module?.ToModule(this.Module?.Version),
 				Name = this.Name,
 				Endpoint = new VersionResource
 				{

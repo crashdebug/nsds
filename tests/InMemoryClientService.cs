@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using NSDS.Core;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
@@ -75,6 +77,12 @@ namespace NSDS.Tests
 		public Client GetClient(int id)
 		{
 			return this.clients.Single(x => x.Id == id);
+		}
+
+		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
+		{
+			client.Modules.Single(x => x == module).Version = version;
+			return true;
 		}
 	}
 }

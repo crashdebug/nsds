@@ -55,17 +55,11 @@ namespace NSDS.Core.Services
 
 		private async Task<BaseVersion> GetVersion(VersionResource resource, DeploymentResult result)
 		{
-			if (!result.Success || string.IsNullOrWhiteSpace(resource.Url))
+			if (!result.Success)
 			{
 				return null;
 			}
-			using (var conn = this.connectionFactory.CreateConnection(new Uri(resource.Url)))
-			{
-				using (var reader = new StreamReader(await conn.GetStream()))
-				{
-					return this.versionConsumer.CheckVersion(JsonConvert.DeserializeXmlNode(await reader.ReadToEndAsync(), "root"), resource.PathQuery);
-				}
-			}
+			return await this.versionConsumer.GetVersion(resource);
 		}
 
 		private async Task<DeploymentResult> Deploy(Deployment deployment, DeploymentArguments args, ILogger logger = null)

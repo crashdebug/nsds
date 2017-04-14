@@ -54,13 +54,14 @@ namespace NSDS.Web
 
 			services.AddTransient<IDeploymentService, DeploymentService>();
 
-			services.AddSingleton<IEventService>(new EventService());
-			services.AddSingleton(new VersionResolver { new DateVersion(), new NumericVersion() });
+			var connectionFactory = new ConnectionFactory().Add("http", uri => new HttpConnection(uri));
+			services.AddSingleton(connectionFactory);
 
-			services.AddSingleton(new ConnectionFactory().Add("http", uri => new HttpConnection(uri)));
+			services.AddSingleton<IEventService>(new EventService());
+			services.AddSingleton(new VersionResolver(connectionFactory) { new DateVersion(), new NumericVersion() });
 
 			services.AddSingleton(typeof(JobRunner));
-
+			
 			services.RegisterTypes(typeof(JobBase), Assembly.Load(new AssemblyName("NSDS.Core")));
 
 			var loggerFactory = new LoggerFactory();

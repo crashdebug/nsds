@@ -1,18 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace NSDS.Core.Services
 {
 	public class VersionResolver : IEnumerable<IVersionParser>
 	{
+		private readonly ConnectionFactory connectionFactory;
 		private readonly ILogger logger;
-
 		private List<IVersionParser> parsers = new List<IVersionParser>();
 
-		public VersionResolver(ILogger logger = null)
+		public VersionResolver(ConnectionFactory connectionFactory, ILogger logger = null)
 		{
+			this.connectionFactory = connectionFactory;
 			this.logger = logger;
 		}
 
@@ -21,7 +26,22 @@ namespace NSDS.Core.Services
 			this.parsers.Add(parser);
 		}
 
-		public BaseVersion CheckVersion(XmlDocument doc, string q)
+		public async Task<BaseVersion> GetVersion(VersionResource resource)
+		{
+			if (string.IsNullOrWhiteSpace(resource.Url))
+			{
+				return null;
+			}
+			using (var conn = this.connectionFactory.CreateConnection(new Uri(resource.Url)))
+			{
+				using (var reader = new StreamReader(await conn.GetStream()))
+				{
+					return this.CheckVersion(JsonConvert.DeserializeXmlNode(await reader.ReadToEndAsync(), "root"), resource.PathQuery);
+				}
+			}
+		}
+
+		private BaseVersion CheckVersion(XmlDocument doc, string q)
 		{
 			if (string.IsNullOrWhiteSpace(q))
 			{

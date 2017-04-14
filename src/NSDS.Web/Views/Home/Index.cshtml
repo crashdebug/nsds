@@ -26,7 +26,7 @@
 	</environment>
 }
 
-<div ng-controller="PackagesController">
+<fieldset ng-controller="PackagesController" title="Packages">
 	<div class="package" ng-repeat="package in packages">
 		<div class="title">
 			@*<span class="glyphicon glyphicon-gift"></span>*@
@@ -40,13 +40,13 @@
 		</div>
 		@*<div><a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a></div>*@
 	</div>
-</div>
+</fieldset>
 <div ng-controller="PoolsController">
 	<ul class="client-list" ng-controller="ClientsController">
 		<li class="client status-{{ cli.status() }}" ng-repeat="cli in clients">
 			<b>{{ cli.name }}</b>
 			<ul class="module-list">
-				<li class="module" ng-repeat="mod in cli.modules">{{ mod.module.name }} <span class="version">{{ mod.versionId }}</span></li>
+				<li class="module" ng-repeat="mod in cli.modules">{{ mod.name }} <span class="version">{{ mod.version.version }}</span></li>
 			</ul>
 		</li>
 	</ul>

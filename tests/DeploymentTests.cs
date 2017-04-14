@@ -44,7 +44,7 @@ namespace NSDS.Tests
 			};
 
 			var eventService = new EventService();
-			var consumer = new VersionResolver { new NumericVersion() };
+			var consumer = new VersionResolver(factory) { new NumericVersion() };
 			bool eventReceived = false;
 			eventService.Register(Constants.Events.PackageVersionReceived, args =>
 			{
@@ -89,7 +89,7 @@ namespace NSDS.Tests
 				Modules = new[] { module },
 			};
 			var eventService = new EventService();
-			var versionConsumer = new VersionResolver { new NumericVersion() };
+			var versionConsumer = new VersionResolver(factory) { new NumericVersion() };
 			var service = new DeploymentService(eventService, factory, versionConsumer);
 
 			var result = service.Deploy(client, module).Result;

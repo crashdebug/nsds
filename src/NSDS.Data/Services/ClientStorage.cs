@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NSDS.Core;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 using NSDS.Data.Models;
@@ -12,9 +14,10 @@ namespace NSDS.Data.Services
 	{
 		private readonly ApplicationDbContext context;
 
-		public ClientStorage(ApplicationDbContext context)
+		public ClientStorage(ApplicationDbContext context, ILogger logger = null)
 		{
 			this.context = context;
+			this.logger = logger;
 		}
 
 		public void AddClient(Client cli)
@@ -52,7 +55,10 @@ namespace NSDS.Data.Services
 
 		public IEnumerable<Client> GetAllClients()
 		{
-			return this.context.Clients.Include("ClientModules.Module").Select(x => x.ToClient());
+			return this.context.Clients
+				.Include("ClientModules.Version")
+				.Include("ClientModules.Module.Deployment.DeploymentCommands.Command")
+				.Select(x => x.ToClient());
 		}
 
 		public void AddClientToPool(Client cli, int poolId)
@@ -72,6 +78,7 @@ namespace NSDS.Data.Services
 
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
+		private readonly ILogger logger;
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -102,6 +109,38 @@ namespace NSDS.Data.Services
 			this.Dispose(true);
 			// TODO: uncomment the following line if the finalizer is overridden above.
 			// GC.SuppressFinalize(this);
+		}
+
+		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
+		{
+			try
+			{
+				var c = this.context.ClientModules.FirstOrDefault(x => x.Client.Name == client.Name && x.Module.Name == module.Name);
+				if (c == null)
+				{
+					c = new ClientModuleDataModel
+					{
+						Client = this.context.Clients.Single(x => x.Name == client.Name),
+						Module = this.context.Modules.Single(x => x.Name == module.Name),
+					};
+					this.context.ClientModules.Add(c);
+					//this.context.SaveChanges();
+				}
+				var v = this.context.Versions.FirstOrDefault(x => x.Version == version.Version);
+				if (v == null)
+				{
+					v = this.context.Versions.Add(version).Entity;
+					//this.context.SaveChanges();
+				}
+				c.Version = v;
+				this.context.SaveChanges();
+				return true;
+			}
+			catch (Exception ex)
+			{
+				this.logger?.LogError("Could not update module '{0}' version for client '{1}' to '{2}':\n{3}", module.Name, client.Name, version.ToString(), ex.ToString());
+				return false;
+			}
 		}
 
 		#endregion

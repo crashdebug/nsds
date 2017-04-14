@@ -46,7 +46,7 @@ namespace NSDS.Data
 				module = this.Modules.Add(new ModuleDataModel
 				{
 					Name = "www",
-					Endpoint = "/api/version",
+					Endpoint = "http://{0}/api/version",
 					PathQuery = "/root/version",
 				}).Entity;
 				this.SaveChanges();

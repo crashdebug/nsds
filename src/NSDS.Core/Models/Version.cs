@@ -15,8 +15,9 @@ namespace NSDS.Core
 
 		public abstract int CompareTo(BaseVersion other);
 
-		protected BaseVersion()
+		protected BaseVersion(string version = null)
 		{
+			this.Version = version;
 			this.Created = DateTime.UtcNow;
 		}
 	}
@@ -59,9 +60,8 @@ namespace NSDS.Core
 		{
 		}
 
-		public DateVersion(string version)
+		public DateVersion(string version) : base(version)
 		{
-			this.Version = version;
 		}
 
 		private	DateTime GetDateTime()
@@ -109,7 +109,7 @@ namespace NSDS.Core
 		{
 		}
 
-		public NumericVersion(string version)
+		public NumericVersion(string version) : base(version)
 		{
 			this.version = new Version(version);
 		}

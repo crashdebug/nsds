@@ -1,24 +1,23 @@
 using System;
-using System.IO;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using NSDS.Core.Interfaces;
+using NSDS.Core.Services;
 
 namespace NSDS.Core.Jobs
 {
-	public class VersionPoller : JobBase
+	public class ModulePoller : JobBase
 	{
 		private readonly IClientsStorage clientService;
-		private readonly IModuleStorage moduleService;
 		private readonly IEventService eventService;
 		private readonly ConnectionFactory connectionFactory;
+		private readonly VersionResolver versionResolver;
 
-		public VersionPoller(IClientsStorage clientService, IModuleStorage moduleService, ConnectionFactory connectionFactory, IEventService eventService, ILogger log = null) : base(log)
+		public ModulePoller(IClientsStorage clientService, ConnectionFactory connectionFactory, VersionResolver versionResolver, IEventService eventService, ILogger log = null) : base(log)
 		{
 			this.clientService = clientService;
-			this.moduleService = moduleService;
 			this.eventService = eventService;
 			this.connectionFactory = connectionFactory;
+			this.versionResolver = versionResolver;
 		}
 
 		protected override async void RunOnce()
@@ -35,10 +34,10 @@ namespace NSDS.Core.Jobs
 					try
 					{
 						var uri = client.GetEndpointUri(module.Endpoint);
-						var conn = this.connectionFactory.CreateConnection(new Uri(uri.Url));
-						using (var stream = new StreamReader(await conn.GetStream()))
-						{
-							var version = JsonConvert.DeserializeObject(stream.ReadToEnd());
+						var version = await this.versionResolver.GetVersion(uri);
+						if (version != null && version.CompareTo(module.Version) != 0)
+						{ 
+							this.clientService.UpdateModuleVersion(client, module, version);
 							this.eventService.Invoke(Constants.Events.ModuleVersionReceived, client, module, version);
 						}
 					}

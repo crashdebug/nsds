@@ -23,12 +23,13 @@ namespace NSDS.Data.Services
 		public IEnumerable<Module> GetClientModules(int clientId)
 		{
 			var dbClient = this.context.Clients.Include("ClientModules.Module").Single(x => x.Id == clientId);
-			return dbClient.ClientModules.Select(x => x.Module.ToModule()).AsEnumerable().ToArray();
+			return dbClient.ClientModules.Select(x => x.Module.ToModule(x.Version)).AsEnumerable().ToArray();
 		}
 
 		public Module GetModule(string name)
 		{
-			return this.context.Modules.SingleOrDefault(x => x.Name == name)?.ToModule();
+			var module = this.context.Modules.SingleOrDefault(x => x.Name == name);
+			return module?.ToModule(module?.Version);
 		}
 	}
 }

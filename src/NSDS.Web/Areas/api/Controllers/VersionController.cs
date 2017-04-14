@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,12 @@ namespace NSDS.Web.Areas.api.Controllers
 		public VersionController(IHostingEnvironment hostingEnv)
 		{
 			this.hostingEnv = hostingEnv;
+		}
+
+		[HttpGet]
+		public IActionResult Version()
+		{
+			return Ok(new { version = this.GetType().GetTypeInfo().Assembly.GetName().Version.ToString() });
 		}
 
 		[Route("packages")]

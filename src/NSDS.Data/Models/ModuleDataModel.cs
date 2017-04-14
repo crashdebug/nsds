@@ -26,7 +26,7 @@ namespace NSDS.Data.Models
 		[Required]
 		public string PathQuery { get; set; }
 
-		internal Module ToModule()
+		internal Module ToModule(BaseVersion version)
 		{
 			return new Module
 			{
@@ -37,7 +37,7 @@ namespace NSDS.Data.Models
 					PathQuery = this.PathQuery
 				},
 				Deployment = this.Deployment?.ToDeployment(),
-				Version = this.Version,
+				Version = version,
 			};
 		}
 	}

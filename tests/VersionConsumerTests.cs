@@ -58,7 +58,9 @@ namespace NSDS.Tests
 			{
 			});
 
-			var poller = new VersionPoller(clientService, clientService, factory, eventService);
+			var versionResolver = new VersionResolver(factory) { new DateVersion() };
+
+			var poller = new ModulePoller(clientService, factory, versionResolver, eventService);
 			poller.Run();
 			Assert.IsTrue(poller.Status == JobStatus.Success);
 		}

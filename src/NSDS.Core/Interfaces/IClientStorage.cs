@@ -10,5 +10,6 @@ namespace NSDS.Core.Interfaces
         void AddClient(Client client);
         IEnumerable<Client> GetAllClients();
 		Client GetClient(int id);
+		bool UpdateModuleVersion(Client client, Module module, BaseVersion version);
 	}
 }
