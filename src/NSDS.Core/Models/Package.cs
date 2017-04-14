@@ -22,5 +22,10 @@ namespace NSDS.Core.Models
 
 		[JsonProperty("deployment")]
 		public Deployment Deployment { get; set; }
+
+		public Package()
+		{
+			this.Created = DateTime.UtcNow;
+		}
 	}
 }

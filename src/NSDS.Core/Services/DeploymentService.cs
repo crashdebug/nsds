@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
@@ -37,15 +34,15 @@ namespace NSDS.Core.Services
 			return result;
 		}
 
-		public async Task<DeploymentResult> Deploy(Client client, Module module, IDictionary<string, object> environment = null, ILogger logger = null)
+		public async Task<DeploymentResult> Deploy(Client client, ClientModule module, IDictionary<string, object> environment = null, ILogger logger = null)
 		{
-			var result = await this.Deploy(module.Deployment, new DeploymentArguments
+			var result = await this.Deploy(module.Module.Deployment, new DeploymentArguments
 			{
 				Client = client,
-				Module = module,
+				Module = module.Module,
 				Environment = environment,
 			}, logger);
-			result.Version = await GetVersion(client.GetEndpointUri(module.Endpoint), result);
+			result.Version = await GetVersion(client.GetEndpointUri(module.Module.Endpoint), result);
 			if (result.Version != null && result.Version.CompareTo(module.Version) != 0)
 			{
 				this.eventService.Invoke(Constants.Events.PackageVersionReceived, client, module, result.Version);

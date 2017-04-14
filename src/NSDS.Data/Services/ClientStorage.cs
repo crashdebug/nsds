@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using NSDS.Core;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
@@ -12,73 +13,127 @@ namespace NSDS.Data.Services
 {
 	public class ClientStorage : IClientsStorage
 	{
-		private readonly ApplicationDbContext context;
+		private readonly ILogger logger;
+		private readonly IServiceProvider services;
 
-		public ClientStorage(ApplicationDbContext context, ILogger logger = null)
+		public ClientStorage(IServiceProvider services, ILogger logger = null)
 		{
-			this.context = context;
+			this.services = services;
 			this.logger = logger;
 		}
 
 		public void AddClient(Client cli)
 		{
-			this.context.Clients.Add(new ClientDataModel
+			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				Name = cli.Name,
-				Address = cli.Address,
-				Enabled = cli.Enabled,
-				Created = DateTime.UtcNow,
-			});
-			this.context.SaveChanges();
+				context.Clients.Add(new ClientDataModel
+				{
+					Name = cli.Name,
+					Address = cli.Address,
+					Enabled = cli.Enabled,
+					Created = DateTime.UtcNow,
+				});
+				context.SaveChanges();
+			}
 		}
 
 		public void RemoveClient(Client client)
 		{
-			var cli = this.context.Clients.FirstOrDefault(x => x.Name == client.Name && x.Address == client.Address);
-			if (cli == null)
+			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				return;
+				var cli = context.Clients.FirstOrDefault(x => x.Name == client.Name && x.Address == client.Address);
+				if (cli == null)
+				{
+					return;
+				}
+				if (cli.Pool != null)
+				{
+					var pool = context.Pools.First(p => p.Id == cli.Pool.Id);
+					pool.Clients.Remove(cli);
+				}
+				context.Clients.Remove(cli);
+				context.SaveChanges();
 			}
-			if (cli.Pool != null)
-			{
-				var pool = this.context.Pools.First(p => p.Id == cli.Pool.Id);
-				pool.Clients.Remove(cli);
-			}
-			this.context.Clients.Remove(cli);
-			this.context.SaveChanges();
 		}
 
 		public Client GetClient(int id)
 		{
-			return this.context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id).ToClient();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Clients.Include(x => x.ClientModules).ThenInclude(m => m.Module).Single(x => x.Id == id).ToClient();
+			}
 		}
 
 		public IEnumerable<Client> GetAllClients()
 		{
-			return this.context.Clients
-				.Include("ClientModules.Version")
-				.Include("ClientModules.Module.Deployment.DeploymentCommands.Command")
-				.Select(x => x.ToClient());
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Clients
+					.Include("ClientModules.Version")
+					.Include("ClientModules.Module.Package.Version")
+					.Include("ClientModules.Module.Deployment.DeploymentCommands.Command")
+					.Select(x => x.ToClient())
+					.ToList();
+			}
 		}
 
 		public void AddClientToPool(Client cli, int poolId)
 		{
-			var pool = this.context.Pools.First(p => p.Id == poolId);
-			pool.Clients.Add(this.context.Clients.Single(x => x.Name == cli.Name && x.Address == cli.Address));
-			this.context.SaveChanges();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				var pool = context.Pools.First(p => p.Id == poolId);
+				pool.Clients.Add(context.Clients.Single(x => x.Name == cli.Name && x.Address == cli.Address));
+				context.SaveChanges();
+			}
 		}
 
 		public IEnumerable<Client> GetClientsInPool(int poolId)
 		{
-			return this.context.Clients.Where(c => c.Pool.Id == poolId)
-				.Include(c => c.ClientModules).ThenInclude(m => m.Module)
-				.Select(c => c.ToClient())
-				.ToArray();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Clients.Where(c => c.Pool.Id == poolId)
+					.Include(c => c.ClientModules).ThenInclude(m => m.Module)
+					.Select(c => c.ToClient())
+					.ToArray();
+			}
+		}
+
+
+		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
+		{
+			try
+			{
+				using (var context = this.services.GetService<ApplicationDbContext>())
+				{
+					var c = context.ClientModules.FirstOrDefault(x => x.Client.Name == client.Name && x.Module.Name == module.Name);
+					if (c == null)
+					{
+						c = new ClientModuleDataModel
+						{
+							Client = context.Clients.Single(x => x.Name == client.Name),
+							Module = context.Modules.Single(x => x.Name == module.Name),
+						};
+						context.ClientModules.Add(c);
+					}
+					var v = context.Versions.FirstOrDefault(x => x.Version == version.Version);
+					if (v == null)
+					{
+						v = context.Versions.Add(version).Entity;
+					}
+					c.Version = v;
+					context.SaveChanges();
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				this.logger?.LogError("Could not update module '{0}' version for client '{1}' to '{2}':\n{3}", module.Name, client.Name, version.ToString(), ex.ToString());
+				return false;
+			}
 		}
 
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
-		private readonly ILogger logger;
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -86,7 +141,7 @@ namespace NSDS.Data.Services
 			{
 				if (disposing)
 				{
-					this.context.Dispose();
+//					this.context.Dispose();
 				}
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -109,38 +164,6 @@ namespace NSDS.Data.Services
 			this.Dispose(true);
 			// TODO: uncomment the following line if the finalizer is overridden above.
 			// GC.SuppressFinalize(this);
-		}
-
-		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
-		{
-			try
-			{
-				var c = this.context.ClientModules.FirstOrDefault(x => x.Client.Name == client.Name && x.Module.Name == module.Name);
-				if (c == null)
-				{
-					c = new ClientModuleDataModel
-					{
-						Client = this.context.Clients.Single(x => x.Name == client.Name),
-						Module = this.context.Modules.Single(x => x.Name == module.Name),
-					};
-					this.context.ClientModules.Add(c);
-					//this.context.SaveChanges();
-				}
-				var v = this.context.Versions.FirstOrDefault(x => x.Version == version.Version);
-				if (v == null)
-				{
-					v = this.context.Versions.Add(version).Entity;
-					//this.context.SaveChanges();
-				}
-				c.Version = v;
-				this.context.SaveChanges();
-				return true;
-			}
-			catch (Exception ex)
-			{
-				this.logger?.LogError("Could not update module '{0}' version for client '{1}' to '{2}':\n{3}", module.Name, client.Name, version.ToString(), ex.ToString());
-				return false;
-			}
 		}
 
 		#endregion

@@ -74,25 +74,34 @@ namespace NSDS.Tests
 				Name = "test_deployment",
 				Commands = new Command[] { command },
 			};
+
+			var package = new Package
+			{
+				Name = "test",
+			};
+
 			Module module = new ModuleModel
 			{
 				Name = "test_module",
 				Endpoint = new VersionResource { Url = "http://{0}/test", PathQuery = "/root/version" },
-				Version = new NumericVersion(0, 7),
+				Package = package,
 				Deployment = deployment,
 			};
+			package.Module = module;
+
 			Client client = new ClientModel
 			{
 				Address = "127.0.0.1:8000",
 				Enabled = true,
 				Name = "test_client",
-				Modules = new[] { module },
+				Modules = new[] { new ClientModule { Module = module } },
 			};
+
 			var eventService = new EventService();
 			var versionConsumer = new VersionResolver(factory) { new NumericVersion() };
 			var service = new DeploymentService(eventService, factory, versionConsumer);
 
-			var result = service.Deploy(client, module).Result;
+			var result = service.Deploy(client, client.Modules.First()).Result;
 
 			Assert.AreEqual(1, result.CommandResults.Count());
 			Assert.IsTrue(command.Executed);

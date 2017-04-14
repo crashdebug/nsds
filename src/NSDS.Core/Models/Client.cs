@@ -19,7 +19,7 @@ namespace NSDS.Core.Models
 		public DateTime Created { get; set; }
 
 		[JsonProperty("modules")]
-		public IEnumerable<Module> Modules { get; set; }
+		public IEnumerable<ClientModule> Modules { get; set; }
 
 		public VersionResource GetEndpointUri(VersionResource endpoint)
 		{

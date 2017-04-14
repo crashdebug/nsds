@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 
@@ -8,28 +10,33 @@ namespace NSDS.Data.Services
 {
 	public class ModuleStorage : IModuleStorage
     {
-		private readonly ApplicationDbContext context;
+		private readonly IServiceProvider services;
 
-		public ModuleStorage(ApplicationDbContext context)
+		public ModuleStorage(IServiceProvider services)
 		{
-			this.context = context;
+			this.services = services;
 		}
 
 		public void Dispose()
 		{
-			this.context.Dispose();
+			//this.context.Dispose();
 		}
 
-		public IEnumerable<Module> GetClientModules(int clientId)
+		public IEnumerable<ClientModule> GetClientModules(int clientId)
 		{
-			var dbClient = this.context.Clients.Include("ClientModules.Module").Single(x => x.Id == clientId);
-			return dbClient.ClientModules.Select(x => x.Module.ToModule(x.Version)).AsEnumerable().ToArray();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				var dbClient = context.Clients.Include("ClientModules.Module").Single(x => x.Id == clientId);
+				return dbClient.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(), Version = x.Version }).ToArray();
+			}
 		}
 
 		public Module GetModule(string name)
 		{
-			var module = this.context.Modules.SingleOrDefault(x => x.Name == name);
-			return module?.ToModule(module?.Version);
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Modules.SingleOrDefault(x => x.Name == name).ToModule();
+			}
 		}
 	}
 }

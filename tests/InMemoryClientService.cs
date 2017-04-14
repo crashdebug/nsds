@@ -25,7 +25,7 @@ namespace NSDS.Tests
 				Name = client.Name,
 				Address = client.Address,
 				Enabled = client.Enabled,
-				Modules = new List<Module>()
+				Modules = new List<ClientModule>()
 			});
 		}
 
@@ -53,7 +53,7 @@ namespace NSDS.Tests
 			});
 		}
 
-		public IEnumerable<Module> GetClientModules(Client client)
+		public IEnumerable<ClientModule> GetClientModules(Client client)
 		{
 			var model = client as ClientModel;
 			if (model == null)
@@ -81,7 +81,7 @@ namespace NSDS.Tests
 
 		public bool UpdateModuleVersion(Client client, Module module, BaseVersion version)
 		{
-			client.Modules.Single(x => x == module).Version = version;
+			client.Modules.Single(x => x.Module == module).Version = version;
 			return true;
 		}
 	}

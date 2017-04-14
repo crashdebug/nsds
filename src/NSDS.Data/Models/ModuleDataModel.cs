@@ -15,9 +15,9 @@ namespace NSDS.Data.Models
 		[Required]
 		public string Endpoint { get; set; }
 
-		public string VersionId { get; set; }
-		[ForeignKey("VersionId")]
-		public BaseVersion Version { get; set; }
+		public int? PackageId { get; set; }
+		[ForeignKey("PackageId")]
+		public PackageDataModel Package { get; set; }
 
 		public int? DeploymentId { get; set; }
 		[ForeignKey("DeploymentId")]
@@ -26,7 +26,7 @@ namespace NSDS.Data.Models
 		[Required]
 		public string PathQuery { get; set; }
 
-		internal Module ToModule(BaseVersion version)
+		internal Module ToModule()
 		{
 			return new Module
 			{
@@ -37,7 +37,7 @@ namespace NSDS.Data.Models
 					PathQuery = this.PathQuery
 				},
 				Deployment = this.Deployment?.ToDeployment(),
-				Version = version,
+				Package = this.Package?.ToPackage(),
 			};
 		}
 	}

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NSDS.Core;
 using NSDS.Core.Extensions;
 using NSDS.Core.Interfaces;
 using NSDS.Web.Models;
@@ -20,21 +19,15 @@ namespace NSDS.Web.Areas.api.Controllers
 	{
 		private readonly IDeploymentStorage deploymentStorage;
 		private readonly IClientsStorage clientStorage;
-		private readonly IModuleStorage moduleStorage;
 		private readonly IDeploymentService deploymentService;
 		private readonly IPackageStorage packageStorage;
-		private readonly IEventService eventService;
-		private readonly ConnectionFactory connectionFactory;
 
-		public DeploymentsController(IDeploymentStorage deploymentStorage, IClientsStorage clientStorage, IModuleStorage moduleStorage, IDeploymentService deploymentService, IPackageStorage packageStorage, IEventService eventService, ConnectionFactory connectionFactory)
+		public DeploymentsController(IDeploymentStorage deploymentStorage, IClientsStorage clientStorage, IDeploymentService deploymentService, IPackageStorage packageStorage)
 		{
 			this.deploymentStorage = deploymentStorage;
 			this.clientStorage = clientStorage;
-			this.moduleStorage = moduleStorage;
 			this.deploymentService = deploymentService;
 			this.packageStorage = packageStorage;
-			this.eventService = eventService;
-			this.connectionFactory = connectionFactory;
 		}
 
 		[Route(""), HttpGet]
@@ -49,12 +42,6 @@ namespace NSDS.Web.Areas.api.Controllers
 		{
 			return Task.Run(async () =>
 			{
-				/*var deployment = this.deploymentStorage.GetDeployment(name);
-				if (deployment == null)
-				{
-					this.Error(400, $"Deployment with name '{name}' not found");
-					return;
-				}*/
 				var package = this.packageStorage.GetPackage(name);
 				if (package == null)
 				{
@@ -92,28 +79,19 @@ namespace NSDS.Web.Areas.api.Controllers
 		[Route("module/{name}"), HttpGet]
 		public async Task<IActionResult> ExecuteModuleDeploymentAsync(string name, int[] clientIds)
 		{
-			/*var deployment = this.deploymentStorage.GetDeployment(name);
-			if (deployment == null)
-			{
-				return BadRequest($"Deployment with name '{name}' not found");
-			}*/
-			var module = this.moduleStorage.GetModule(name);
-			if (module == null)
-			{
-				return BadRequest($"Module with name '{name}' not found");
-			}
 			List<Task<DeploymentResult>> tasks = new List<Task<DeploymentResult>>();
 			foreach (var id in clientIds)
 			{
 				var client = this.clientStorage.GetClient(id);
 				if (client != null)
 				{
+					var module = client.Modules.First(x => x.Module.Name == name);
 					var task = this.deploymentService.Deploy(client, module, new Dictionary<string, object>
 						{
 							{ "workingDir", Directory.GetCurrentDirectory() },
 							{ "date", DateTime.UtcNow },
 							{ "client", client },
-							{ "module", module },
+							{ "module", module.Module },
 						});
 					tasks.Add(task);
 				}

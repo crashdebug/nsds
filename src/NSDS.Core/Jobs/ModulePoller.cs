@@ -33,17 +33,17 @@ namespace NSDS.Core.Jobs
 				{
 					try
 					{
-						var uri = client.GetEndpointUri(module.Endpoint);
+						var uri = client.GetEndpointUri(module.Module.Endpoint);
 						var version = await this.versionResolver.GetVersion(uri);
 						if (version != null && version.CompareTo(module.Version) != 0)
 						{ 
-							this.clientService.UpdateModuleVersion(client, module, version);
+							this.clientService.UpdateModuleVersion(client, module.Module, version);
 							this.eventService.Invoke(Constants.Events.ModuleVersionReceived, client, module, version);
 						}
 					}
 					catch (Exception ex)
 					{
-						this.Log.LogError("Could not get version for module '{0}', client '{1}':\n{2}", module.Name, client.Name, ex.ToString());
+						this.Log.LogError("Could not get version for module '{0}', client '{1}':\n{2}", module.Module.Name, client.Name, ex.ToString());
 					}
 				}
 			}

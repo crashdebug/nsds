@@ -43,11 +43,13 @@ namespace NSDS.Tests
 					Name = "test",
 					Address = "127.0.0.1",
 					Enabled = true,
-					Modules = new List<Module>(new[] {
-						new ModuleModel
-						{
-							Name = "ui",
-							Endpoint = new VersionResource { Url = "http://{0}:8000/cart/git" }
+					Modules = new List<ClientModule>(new[] { 
+						new ClientModule {
+							Module = new ModuleModel
+							{
+								Name = "ui",
+								Endpoint = new VersionResource { Url = "http://{0}:8000/cart/git" }
+							}
 						}
 					})
 				}

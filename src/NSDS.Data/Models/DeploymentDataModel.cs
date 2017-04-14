@@ -20,6 +20,10 @@ namespace NSDS.Data.Models
 
 		public virtual ICollection<DeploymentCommandsDataModel> DeploymentCommands { get; set; }
 
+		public int? ModuleId { get; set; }
+		[ForeignKey("ModuleId")]
+		public ModuleDataModel Module { get; set; }
+
 		[NotMapped]
 		public ICollection<Command> Commands
 		{

@@ -23,7 +23,7 @@ namespace NSDS.Data.Models
 		[ForeignKey("VersionId")]
 		public BaseVersion Version { get; set; }
 
-		public int ModuleId { get; set; }
+		public int? ModuleId { get; set; }
 		[ForeignKey("ModuleId")]
 		public ModuleDataModel Module { get; set; }
 
@@ -40,7 +40,7 @@ namespace NSDS.Data.Models
 			{
 				Created = this.Created,
 				Deployment = this.Deployment?.ToDeployment(),
-				Module = this.Module?.ToModule(this.Module?.Version),
+				Module = this.Module?.ToModule(),
 				Name = this.Name,
 				Endpoint = new VersionResource
 				{

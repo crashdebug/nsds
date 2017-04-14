@@ -35,20 +35,6 @@ namespace NSDS.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Deployments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Created = table.Column<DateTime>(nullable: false),
-                    Name = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Deployments", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Pools",
                 columns: table => new
                 {
@@ -60,60 +46,6 @@ namespace NSDS.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pools", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DeploymentCommands",
-                columns: table => new
-                {
-                    CommandName = table.Column<string>(nullable: false),
-                    DeploymentId = table.Column<int>(nullable: false),
-                    Order = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DeploymentCommands", x => new { x.CommandName, x.DeploymentId });
-                    table.ForeignKey(
-                        name: "FK_DeploymentCommands_Commands_CommandName",
-                        column: x => x.CommandName,
-                        principalTable: "Commands",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DeploymentCommands_Deployments_DeploymentId",
-                        column: x => x.DeploymentId,
-                        principalTable: "Deployments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Modules",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    DeploymentId = table.Column<int>(nullable: true),
-                    Endpoint = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    PathQuery = table.Column<string>(nullable: false),
-                    VersionId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Modules", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Modules_Deployments_DeploymentId",
-                        column: x => x.DeploymentId,
-                        principalTable: "Deployments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Modules_Versions_VersionId",
-                        column: x => x.VersionId,
-                        principalTable: "Versions",
-                        principalColumn: "Version",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -140,43 +72,6 @@ namespace NSDS.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Packages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Created = table.Column<DateTime>(nullable: false),
-                    DeploymentId = table.Column<int>(nullable: true),
-                    ModuleId = table.Column<int>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    PathQuery = table.Column<string>(nullable: false),
-                    Url = table.Column<string>(nullable: true),
-                    VersionId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Packages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Packages_Deployments_DeploymentId",
-                        column: x => x.DeploymentId,
-                        principalTable: "Deployments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Packages_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Packages_Versions_VersionId",
-                        column: x => x.VersionId,
-                        principalTable: "Versions",
-                        principalColumn: "Version",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ClientModules",
                 columns: table => new
                 {
@@ -194,16 +89,98 @@ namespace NSDS.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClientModules_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_ClientModules_Versions_VersionId",
                         column: x => x.VersionId,
                         principalTable: "Versions",
                         principalColumn: "Version",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Packages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Created = table.Column<DateTime>(nullable: false),
+                    DeploymentId = table.Column<int>(nullable: true),
+                    ModuleId = table.Column<int>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    PathQuery = table.Column<string>(nullable: false),
+                    Url = table.Column<string>(nullable: true),
+                    VersionId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Packages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Packages_Versions_VersionId",
+                        column: x => x.VersionId,
+                        principalTable: "Versions",
+                        principalColumn: "Version",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeploymentCommands",
+                columns: table => new
+                {
+                    CommandName = table.Column<string>(nullable: false),
+                    DeploymentId = table.Column<int>(nullable: false),
+                    Order = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeploymentCommands", x => new { x.CommandName, x.DeploymentId });
+                    table.ForeignKey(
+                        name: "FK_DeploymentCommands_Commands_CommandName",
+                        column: x => x.CommandName,
+                        principalTable: "Commands",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Modules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    DeploymentId = table.Column<int>(nullable: true),
+                    Endpoint = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    PackageId = table.Column<int>(nullable: true),
+                    PathQuery = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Modules_Packages_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "Packages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Deployments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Created = table.Column<DateTime>(nullable: false),
+                    ModuleId = table.Column<int>(nullable: true),
+                    Name = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Deployments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Deployments_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalTable: "Modules",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -228,14 +205,19 @@ namespace NSDS.Data.Migrations
                 column: "DeploymentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Deployments_ModuleId",
+                table: "Deployments",
+                column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Modules_DeploymentId",
                 table: "Modules",
                 column: "DeploymentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Modules_VersionId",
+                name: "IX_Modules_PackageId",
                 table: "Modules",
-                column: "VersionId");
+                column: "PackageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Packages_DeploymentId",
@@ -251,18 +233,63 @@ namespace NSDS.Data.Migrations
                 name: "IX_Packages_VersionId",
                 table: "Packages",
                 column: "VersionId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ClientModules_Modules_ModuleId",
+                table: "ClientModules",
+                column: "ModuleId",
+                principalTable: "Modules",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Packages_Modules_ModuleId",
+                table: "Packages",
+                column: "ModuleId",
+                principalTable: "Modules",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Packages_Deployments_DeploymentId",
+                table: "Packages",
+                column: "DeploymentId",
+                principalTable: "Deployments",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_DeploymentCommands_Deployments_DeploymentId",
+                table: "DeploymentCommands",
+                column: "DeploymentId",
+                principalTable: "Deployments",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Modules_Deployments_DeploymentId",
+                table: "Modules",
+                column: "DeploymentId",
+                principalTable: "Deployments",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Deployments_Modules_ModuleId",
+                table: "Deployments");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Packages_Modules_ModuleId",
+                table: "Packages");
+
             migrationBuilder.DropTable(
                 name: "ClientModules");
 
             migrationBuilder.DropTable(
                 name: "DeploymentCommands");
-
-            migrationBuilder.DropTable(
-                name: "Packages");
 
             migrationBuilder.DropTable(
                 name: "Clients");
@@ -271,10 +298,13 @@ namespace NSDS.Data.Migrations
                 name: "Commands");
 
             migrationBuilder.DropTable(
+                name: "Pools");
+
+            migrationBuilder.DropTable(
                 name: "Modules");
 
             migrationBuilder.DropTable(
-                name: "Pools");
+                name: "Packages");
 
             migrationBuilder.DropTable(
                 name: "Deployments");

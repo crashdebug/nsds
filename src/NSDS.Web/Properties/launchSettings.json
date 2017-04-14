@@ -16,7 +16,12 @@
       }
     },
     "NSDS.Web": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "3000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5000"
     }
   }
 }

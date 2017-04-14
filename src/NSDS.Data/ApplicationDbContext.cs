@@ -58,7 +58,7 @@ namespace NSDS.Data
 				client = new ClientDataModel
 				{
 					Name = "nsds",
-					Address = "localhost:5000",
+					Address = "localhost:3000",
 					Enabled = true,
 					Created = DateTime.UtcNow,
 				};
@@ -73,11 +73,26 @@ namespace NSDS.Data
 				build = this.Deployments.Add(new DeploymentDataModel
 				{
 					Name = "build",
+					Module = module,
 					Created = DateTime.UtcNow,
 					Commands = new List<Command> { new ShellCommand("dotnet", @"pack NSDS.Web.csproj -o wwwroot\pkg") }
 				}).Entity;
 				this.SaveChanges();
 			}
+			var publish = this.Deployments.SingleOrDefault(x => x.Name == "publish");
+			if (publish == null)
+			{
+				publish = this.Deployments.Add(new DeploymentDataModel
+				{
+					Name = "publish",
+					Module = module,
+					Created = DateTime.UtcNow,
+					Commands = new List<Command> {  new ShellCommand("dotnet", @"publish NSDS.Web.csproj -o ..\..\deploy")},
+				}).Entity;
+				this.SaveChanges();
+			}
+			module.Deployment = publish;
+			this.SaveChanges();
 
 			var package = this.Packages.SingleOrDefault(x => x.Module == module);
 			if (package == null)
@@ -88,11 +103,14 @@ namespace NSDS.Data
 					Created = DateTime.UtcNow,
 					Module = module,
 					Deployment = build,
-					Url = "http://localhost:5000/api/version/latest/package",
+					Url = "http://localhost:3000/api/version/latest/package",
 					PathQuery = "/root/version"
 				}).Entity;
 				this.SaveChanges();
 			}
+
+			module.Package = package;
+			this.SaveChanges();
 
 			/*var uiVersionOld = this.Versions.FirstOrDefault(x => x.Version == "2017-02-14 00:00:00");
 			if (uiVersionOld == null)

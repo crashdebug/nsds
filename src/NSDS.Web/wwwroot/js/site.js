@@ -2,6 +2,15 @@
 
 var app = angular.module('nsds', []);
 
+app.config(['$compileProvider', function ($compileProvider) {
+	$compileProvider.debugInfoEnabled(false);
+}]);
+
+app.controller('DeploymentController', function DeploymentController($scope) {
+	$scope.selectedItems = [];
+	$scope.canDeploy = false;
+});
+
 app.controller('PoolsController', function PoolsController($scope, $http) {
 	$http.get('api/pools').then(function (response) {
 		$scope.pools = response.data;
@@ -12,9 +21,33 @@ app.controller('ClientsController', function ClientsController($scope, $http) {
 	$http.get('api/clients/').then(function (response) {
 		$scope.pools = _.groupBy(response.data, function (x) { return x.poolId; });
 		$scope.clients = _.each(response.data, function (x) {
+			_.each(x.modules, function (y) {
+				y.selected = false;
+				y.select = function () {
+					y.selected = !y.selected;
+					if (y.selected) {
+						$scope.$parent.$parent.selectedItems.push({ client: x, module: y });
+					} else {
+						$scope.$parent.$parent.selectedItems = _.reject($scope.$parent.selectedItems, function (z) { return z.client == x && z.module == y; });
+					}
+					$scope.$parent.$parent.canDeploy = $scope.$parent.$parent.selectedItems.length > 0;
+				};
+			});
+			x.select = function () {
+				for (var i = 0; this.modules && i < this.modules.length; i++) {
+					if (!this.modules[i].isLatest) {
+						this.modules[i].selected = true;
+					}
+				}
+			};
+			x.selected = function () {
+				return _.some(x.modules, function (y) {
+					return y.selected;
+				})
+			};
 			x.status = function () {
 				return "ok";
-			}
+			};
 		});
 		$scope.deploy = function (client, module) {
 

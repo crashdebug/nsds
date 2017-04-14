@@ -10,7 +10,7 @@ namespace NSDS.Core.Interfaces
 	public interface IDeploymentService
     {
 		Task<DeploymentResult> Deploy(Package package, IDictionary<string, object> environment = null, ILogger logger = null);
-		Task<DeploymentResult> Deploy(Client client, Module module, IDictionary<string, object> environment = null, ILogger logger = null);
+		Task<DeploymentResult> Deploy(Client client, ClientModule module, IDictionary<string, object> environment = null, ILogger logger = null);
 	}
 
 	public class DeploymentArguments

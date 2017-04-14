@@ -12,6 +12,9 @@ namespace NSDS.Core.Models
 		[JsonProperty("created")]
 		public DateTime Created { get; set; }
 
+		[JsonProperty("module")]
+		public Module Module { get; set; }
+
 		[JsonProperty("commands")]
 		public ICollection<Command> Commands { get; set; }
 	}

@@ -26,7 +26,8 @@
 	</environment>
 }
 
-<fieldset ng-controller="PackagesController" title="Packages">
+<fieldset ng-controller="PackagesController">
+	<legend>Packages</legend>
 	<div class="package" ng-repeat="package in packages">
 		<div class="title">
 			@*<span class="glyphicon glyphicon-gift"></span>*@
@@ -41,13 +42,28 @@
 		@*<div><a ng-if="package.module.deployment" href="/api/deploy/{{ package.module.name }}/{{ package.moduleId }}">{{ package.module.deployment.name }}</a></div>*@
 	</div>
 </fieldset>
-<div ng-controller="PoolsController">
-	<ul class="client-list" ng-controller="ClientsController">
-		<li class="client status-{{ cli.status() }}" ng-repeat="cli in clients">
-			<b>{{ cli.name }}</b>
-			<ul class="module-list">
-				<li class="module" ng-repeat="mod in cli.modules">{{ mod.name }} <span class="version">{{ mod.version.version }}</span></li>
-			</ul>
-		</li>
-	</ul>
+
+<hr/>
+
+<div ng-controller="DeploymentController">
+	<button ng-disabled="!canDeploy">Deploy ({{ selectedItems.length }})</button>
+
+	<fieldset ng-controller="PoolsController" title="Clients">
+		<legend>Pools</legend>
+		<fieldset class="client-list" ng-controller="ClientsController">
+			<legend>Clients</legend>
+			<div class="client status-{{ cli.status() }}" ng-repeat="cli in clients" ng-class="{'selected': cli.selected()}">
+				<span class="glyphicon" ng-class="{'glyphicon-unchecked': !cli.selected(), 'glyphicon-check': cli.selected() }" ng-click="cli.select()" style="margin-left: 4px; vertical-align: baseline;"></span>
+				<strong>{{ cli.name }}</strong>
+				<ul class="module-list">
+					<li class="module" ng-repeat="mod in cli.modules">
+						<span class="glyphicon" ng-class="{'glyphicon-unchecked': !mod.selected, 'glyphicon-check': mod.selected}" ng-click="mod.select()"></span>
+						<span class="glyphicon" ng-class="{'glyphicon-ok-circle': mod.isLatest, 'ok': mod.isLatest, 'glyphicon-remove-circle': !mod.isLatest, 'warn': !mod.isLatest}"></span>
+						<span class="name">{{ mod.module.name }}</span>
+						<span class="version">{{ mod.version.version }}</span>
+					</li>
+				</ul>
+			</div>
+		</fieldset>
+	</fieldset>
 </div>

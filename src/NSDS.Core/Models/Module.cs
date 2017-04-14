@@ -10,8 +10,8 @@ namespace NSDS.Core.Models
 		[JsonProperty("endpoint")]
 		public VersionResource Endpoint { get; set; }
 
-		[JsonProperty("version")]
-		public BaseVersion Version { get; set; }
+		[JsonProperty("package")]
+		public Package Package { get; set; }
 
 		[JsonProperty("deployment")]
 		public Deployment Deployment { get; set; }

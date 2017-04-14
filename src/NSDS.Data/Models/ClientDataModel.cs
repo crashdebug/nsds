@@ -35,7 +35,7 @@ namespace NSDS.Data.Models
 				Address = this.Address,
 				Created = this.Created,
 				Enabled = this.Enabled,
-				Modules = this.ClientModules.Select(x => x.Module.ToModule(x.Version)).AsEnumerable(),
+				Modules = this.ClientModules.Select(x => new ClientModule { Module = x.Module.ToModule(), Version = x.Version }).AsEnumerable(),
 				Name = this.Name,
 			};
 		}

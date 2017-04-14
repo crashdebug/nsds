@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 using NSDS.Data.Models;
@@ -10,41 +10,50 @@ namespace NSDS.Data.Services
 {
 	public class PoolStorage : IPoolStorage
 	{
-		private readonly ApplicationDbContext context;
+		private readonly IServiceProvider services;
 
-		public PoolStorage(ApplicationDbContext context)
+		public PoolStorage(IServiceProvider services)
 		{
-			this.context = context;
+			this.services = services;
 		}
 
 		public void AddPool(Pool pool)
 		{
-			this.context.Pools.Add(new PoolDataModel
+			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				Name = pool.Name,
-				Created = DateTime.UtcNow,
-			});
-			this.context.SaveChanges();
+				context.Pools.Add(new PoolDataModel
+				{
+					Name = pool.Name,
+					Created = DateTime.UtcNow,
+				});
+				context.SaveChanges();
+			}
 		}
 
 		public void RemovePool(int poolId)
 		{
-			var pool = this.context.Pools.FirstOrDefault(p => p.Id == poolId);
-			if (pool != null)
+			using (var context = this.services.GetService<ApplicationDbContext>())
 			{
-				this.context.Pools.Remove(pool);
-				this.context.SaveChanges();
+				var pool = context.Pools.FirstOrDefault(p => p.Id == poolId);
+				if (pool != null)
+				{
+					context.Pools.Remove(pool);
+					context.SaveChanges();
+				}
 			}
 		}
 
 		public void Dispose()
 		{
-			this.context.Dispose();
+			//this.context.Dispose();
 		}
 
 		public IEnumerable<Pool> GetPools()
 		{
-			return this.context.Pools.Select(x => x.ToPool()).ToArray();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Pools.Select(x => x.ToPool()).ToArray();
+			}
 		}
 	}
 }

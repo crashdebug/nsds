@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NSDS.Core.Interfaces;
 using NSDS.Core.Models;
 using NSDS.Data.Models;
@@ -10,30 +11,31 @@ namespace NSDS.Data.Services
 {
 	public class DeploymentStorage : IDeploymentStorage
 	{
-		private readonly ApplicationDbContext context;
+		private readonly IServiceProvider services;
 
-		public DeploymentStorage(ApplicationDbContext context)
+		public DeploymentStorage(IServiceProvider services)
 		{
-			this.context = context;
+			this.services = services;
 		}
 
 		public void Dispose()
 		{
-			this.context.Dispose();
+			//this.context.Dispose();
 		}
 
 		public Deployment GetDeployment(string name)
 		{
-			return this.context.Deployments.Include("DeploymentCommands.Command").Single(x => x.Name == name).ToDeployment();
-			//var @select = GetSelectDeployments();
-			//return @select.Single(x => x.Name == name).ToDeployment();
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return context.Deployments.Include("DeploymentCommands.Command").Single(x => x.Name == name).ToDeployment();
+			}
 		}
 
-		private IQueryable<DeploymentDataModel> GetSelectDeployments()
+		private IQueryable<DeploymentDataModel> GetSelectDeployments(ApplicationDbContext context)
 		{
-			return from dc in this.context.DeploymentCommands
-				   join c in this.context.Commands on dc.CommandName equals c.Name
-				   join d in this.context.Deployments on dc.DeploymentId equals d.Id
+			return from dc in context.DeploymentCommands
+				   join c in context.Commands on dc.CommandName equals c.Name
+				   join d in context.Deployments on dc.DeploymentId equals d.Id
 				   group new { dc, c } by d into g
 				   select new DeploymentDataModel
 				   {
@@ -45,7 +47,10 @@ namespace NSDS.Data.Services
 
 		public IEnumerable<Deployment> GetDeployments()
 		{
-			return this.GetSelectDeployments().Select(x => x.ToDeployment());
+			using (var context = this.services.GetService<ApplicationDbContext>())
+			{
+				return this.GetSelectDeployments(context).Select(x => x.ToDeployment()).ToArray();
+			}
 		}
 	}
 }
